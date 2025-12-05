@@ -19,24 +19,30 @@ output, in case of trend widget the output must be a single number.
 
 Let's see some real life examples:
 ### Display average load trend, update it in every second:
-./prw -r -source "cat /proc/loadavg | awk '{print $1}' 
+./prw -r -source "cat /proc/loadavg | awk '{print $1}'"
+
 The 1 minute load average is queried every second and displayed as a thin bar,
 old load values are shifted left. Default sizes and colors are used.
 
 ### Display wifi connected to:
-./prw -x -source "iw wlan0 link | grep SSID | awk '{print $2}'
+./prw -x -source "iw wlan0 link | grep SSID | awk '{print $2}'"
 
 Full parameter list can be obtained by ./prw -h .
 
 ## How to compile
 The only library dependency is FLTK. It is implemented using 1.3.X, but
 1.4 shall be compatible too.
+
 Other requirements:
 * C++11 compliant compiler
 * cmake 3.5 or newer
+  
 How to compile:
-cmake -S <source location> -B <build location> -DFLTK_INCLUDE_DIR=... -DFLTK_LIBRARY_DIR=...
-cmake --build <build location>
+cmake -S SOURCE_LOCATION -B BUILD_LOCATION -DFLTK_INCLUDE_DIR=... -DFLTK_LIBRARY_DIR=...
+cmake --build BUILD_LOCATION
+
 FLTK_INCLUDE_DIR is likely /usr/include
+
 FLTK_LIBRARY_DIR is likely /usr/lib
+
 Automatic FLTK search may be implemented in the future.
