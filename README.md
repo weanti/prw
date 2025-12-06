@@ -38,11 +38,13 @@ Other requirements:
 * cmake 3.5 or newer
   
 How to compile:
-cmake -S SOURCE_LOCATION -B BUILD_LOCATION -DFLTK_INCLUDE_DIR=... -DFLTK_LIBRARY_DIR=...
+cmake -S SOURCE_LOCATION -B BUILD_LOCATION -DFLTK_INCLUDE_DIR=... -DFLTK_LIBRARY_DIR=... -DOTHER_INCLUDE_DIR
 cmake --build BUILD_LOCATION
 
-FLTK_INCLUDE_DIR is likely /usr/include
+FLTK_INCLUDE_DIR is likely /usr/include on Linux and /usr/local/include on OpenBSD
 
-FLTK_LIBRARY_DIR is likely /usr/lib
+FLTK_LIBRARY_DIR is likely /usr/lib on Linux and /usr/local/lib on OpenBSD
+
+OTHER_INCLUDE_DIR may not be required, but can be used if your system requires more include directories beyond FLTK, e.g. /usr/X11R6/include on OpenBSD for Xlib includes.
 
 Automatic FLTK search may be implemented in the future.
