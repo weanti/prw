@@ -5,7 +5,7 @@ file( GLOB SRC prw.cpp source.h source.cpp widget.h widget.cpp textwidget.h text
 
 add_executable( prw ${SRC} )
 
-target_include_directories( prw PRIVATE ${FLTK_INCLUDE_DIR} )
+target_include_directories( prw PRIVATE ${FLTK_INCLUDE_DIR} ${OTHER_INCLUDE_DIRECTORIES} )
 target_link_directories( prw PRIVATE ${FLTK_LIBRARY_DIR} )
 
 target_link_libraries( prw PUBLIC fltk )
