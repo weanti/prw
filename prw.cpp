@@ -118,14 +118,6 @@ int main(int argc, char** argv)
     {
         widget = std::make_unique<TrendWidget>( w, h, fg, bg, repeat, Source(source), maxvalue, tooltip );
     }
-    //Fl::add_timeout( 15, get_load, &wnd );
-        //std::string load = "cat /proc/loadavg | cut -f1 -d' '";
-        //TextWidget text( 256, 256, FL_BLACK, FL_BLUE, 1, Source( Source::Shell, load) );
-        //int ncpus = cpu_count();
-        //std::string load2 = "cat /proc/loadavg | awk '{print $1}'";
-
-        //TrendWidget trend( w, h, fg, bg, repeat, Source( Source::Shell, source), maxvalue, tooltip );
-        //TextWidget trend( w, h, fg, bg, repeat, Source( source), tooltip );
     wnd.end();
     wnd.show();
     return Fl::run();
