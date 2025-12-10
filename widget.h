@@ -14,6 +14,7 @@ class Widget : public Fl_Widget
         ~Widget() override = default;
 
         void draw() override;// Fl_Widget
+        int handle(int) override;
         void repeat();
 
         virtual void update() = 0;

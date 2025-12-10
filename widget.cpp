@@ -28,10 +28,23 @@ Widget::Widget( int w, int h, int fg, int bg, int repeat, Source source, const s
     Fl::add_timeout( mRepeat, ::update, this ); 
 }
 
+int Widget::handle(int event)
+{
+	int ret=0;
+	switch(event)
+	{
+		case FL_ENTER: // enable tooltip
+			return 1;
+		default:
+			break;
+	}
+	return ret;
+}
+
 void Widget::draw()
 {
     // draws background box
-    fl_draw_box( FL_FLAT_BOX, x(), y(), w(), h(), mBG );
+    draw_box( FL_FLAT_BOX, mBG );
 }
 
 void Widget::repeat()
