@@ -1,7 +1,6 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
-#include <FL/Fl_Tooltip.H>
 
 #include <cstdio>
 #include <cstdlib>
@@ -103,20 +102,19 @@ int main(int argc, char** argv)
         usage(argv[0]);
         exit(1);
     }
-    Fl_Tooltip::enable(1);
     Fl_Window wnd( w, h );
     wnd.box( FL_FLAT_BOX );
     std::unique_ptr<Widget> widget;
     if ( type == "-b" )
     {
-        widget = std::make_unique<BarWidget>( w, h, fg, bg, repeat, Source(source), maxvalue, tooltip );
+        widget = std::make_unique<BarWidget>( w, h, fg, bg, repeat, std::move( Source(source) ), maxvalue, tooltip );
     } else if ( type == "-x" )
     {
-        widget = std::make_unique<TextWidget>( w, h, fg, bg, repeat, Source(source), tooltip );
+        widget = std::make_unique<TextWidget>( w, h, fg, bg, repeat, std::move( Source(source) ), tooltip );
     }
     else if ( type == "-r" )
     {
-        widget = std::make_unique<TrendWidget>( w, h, fg, bg, repeat, Source(source), maxvalue, tooltip );
+        widget = std::make_unique<TrendWidget>( w, h, fg, bg, repeat, std::move( Source(source) ), maxvalue, tooltip );
     }
     wnd.end();
     wnd.show();
