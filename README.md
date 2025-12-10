@@ -43,6 +43,7 @@ Other requirements:
   
 How to compile:
 cmake -S SOURCE_LOCATION -B BUILD_LOCATION -DFLTK_INCLUDE_DIR=... -DFLTK_LIBRARY_DIR=... -DOTHER_INCLUDE_DIR
+
 cmake --build BUILD_LOCATION
 
 FLTK_INCLUDE_DIR is likely /usr/include on Linux and /usr/local/include on OpenBSD
