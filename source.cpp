@@ -22,7 +22,7 @@ Source::Source( Source&& other )
         std::copy( other.mOutputFileName, other.mOutputFileName + sizeof( other.mOutputFileName ), mOutputFileName );
         other.mOutputFileName[0] = '\0';
         mOutputFileFD = other.mOutputFileFD;
-        other.mOutputFileFD = 0;
+        other.mOutputFileFD = -1;
     }
 }
 
