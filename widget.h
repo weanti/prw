@@ -3,30 +3,22 @@
 
 #include "source.h"
 
-#include <FL/Fl_Widget.H>
+#include <xcb/xcb.h>
 
-#include <string>
-
-class Widget : public Fl_Widget
+typedef struct 
 {
-    public:
-        Widget( int w, int h, int fg, int bg, int repeat, Source source, const std::string& tooltip = "" );
-        ~Widget() override = default;
+    int w, h;
+    Source source;
+    char* tooltip;// owned
+	xcb_connection_t* conn;
+	xcb_drawable_t win;
+	xcb_gcontext_t bg_ctx;
+  	xcb_gcontext_t fg_ctx;
+    uint8_t padding[32];
+} Widget;
 
-        void draw() override;// Fl_Widget
-        int handle(int) override;
-        void repeat();
-
-        virtual void update() = 0;
-    protected:
-        std::string execute();
-        int bg() const;
-        int fg() const;
-    private:
-        int mFG;
-        int mBG;
-        int mRepeat;// interval in seconds
-        Source mSource;
-};
+Widget create_widget( int w, int h, char* program, char* tooltip, xcb_connection_t* conn, xcb_drawable_t win, xcb_gcontext_t bg_ctx, xcb_gcontext_t fg_ctx );
+void draw_widget( Widget* );
+void destroy_widget( Widget* );
 
 #endif

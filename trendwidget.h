@@ -2,22 +2,23 @@
 #define TRENDWIDGET_H
 
 #include "widget.h"
-#include "source.h"
 
-#include <string>
-#include <vector>
-
-class TrendWidget : public Widget
+typedef struct 
 {
-    public:
-        TrendWidget( int w, int h, int fg, int bg, int repeat, Source source, double maxvalue, const std::string& tooltip = "" );
-        ~TrendWidget() override = default;
+    Widget widget;
+    double* values;
+    double maxvalue;
+} TrendWidget;
 
-        void update() override;
-        void draw() override;// Fl_Widget
-    private:
-        std::vector<double> mTrend;
-        double mMaxValue;
-};
+TrendWidget create_trendwidget( int w, int h,
+                                char* program,
+                                char* tooltip,
+                                double maxvalue,
+                                xcb_connection_t* conn,
+                                xcb_drawable_t win,
+                                xcb_gcontext_t bg_ctx,
+                                xcb_gcontext_t fg_ctx );
+void draw_trendwidget( Widget* );
+void destroy_trendwidget( Widget* );
 
 #endif

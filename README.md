@@ -6,7 +6,7 @@ It is a tool that displays an output of a program (script or binary) in a
 window.
 I prefer lightweight window managers. I'm using JWM and wanted to have that nice
 little status widgets that IceWM has, so I implemented this application, which
-can be embedded in JWM using the "swallow" tag. (In this case use "FLTK" as
+can be embedded in JWM using the "swallow" tag. (In this case use "PRW" as
 name, becase that is the window class JWM checks.)
 
 ## What is it capable of and how to use?
@@ -34,8 +34,7 @@ old load values are shifted left. Default sizes and colors are used.
 Full parameter list can be obtained by ./prw -h .
 
 ## How to compile
-The only library dependency is FLTK. It is implemented using 1.3.X, but
-1.4 shall be compatible too.
+The only library dependency is xcb. 
 
 Other requirements:
 * C++11 compliant compiler

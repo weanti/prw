@@ -2,21 +2,24 @@
 #define BARWIDGET_H
 
 #include "widget.h"
-#include "source.h"
 
-#include <string>
+#include <xcb/xcb.h>
 
-class BarWidget : public Widget
+typedef struct
 {
-    public:
-        BarWidget( int w, int h, int fg, int bg, int repeat, Source source, double maxvalue, const std::string& tooltip = "" );
-        ~BarWidget() override = default;
+    Widget base; 
+    double maxvalue; 
+} BarWidget;
 
-        void update() override;
-        void draw() override;// Fl_Widget
-    private:
-        double mMaxValue;
-        double mValue;
-};
+BarWidget create_barwidget( int w, int h,
+                            char* program,
+                            char* tooltip,
+                            double maxvalue,
+                            xcb_connection_t* conn,
+                            xcb_drawable_t win,
+                            xcb_gcontext_t bg_ctx,
+                            xcb_gcontext_t fg_ctx );
+void draw_barwidget( Widget* );
+void destroy_barwidget( Widget* );
 
 #endif

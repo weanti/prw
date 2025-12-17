@@ -2,20 +2,20 @@
 #define TEXTWIDGET_H
 
 #include "widget.h"
-#include "source.h"
 
-#include <string>
-
-class TextWidget : public Widget
+typedef struct 
 {
-    public:
-        TextWidget( int w, int h, int fg, int bg, int repeat, Source source, const std::string& tooltip = "" );
-        virtual ~TextWidget() =  default;
+    Widget base;
+} TextWidget;
 
-        void update() override;
-        void draw() override; // Fl_Widget
-    private:
-        std::string mLabel;
-};
+TextWidget create_textwidget(   int w, int h,
+                                char* program,
+                                char* tooltip,
+                                xcb_connection_t* conn,
+                                xcb_drawable_t win,
+                                xcb_gcontext_t bg_ctx,
+                                xcb_gcontext_t fg_ctx );
+void draw_textwidget( Widget* );
+void destroy_textwidget( Widget* );
 
 #endif

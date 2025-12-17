@@ -1,11 +1,11 @@
 project( prw )
 cmake_minimum_required(VERSION 3.5)
 
-file( GLOB SRC prw.cpp barwidget.h barwidget.cpp source.h source.cpp widget.h widget.cpp textwidget.h textwidget.cpp tredwidget.h trendwidget.cpp )
+file( GLOB SRC prw.c barwidget.h barwidget.c source.h source.c widget.h widget.c textwidget.h textwidget.c trendwidget.h trendwidget.c )
 
 add_executable( prw ${SRC} )
 
-target_include_directories( prw PRIVATE ${FLTK_INCLUDE_DIR} ${OTHER_INCLUDE_DIR} )
-target_link_directories( prw PRIVATE ${FLTK_LIBRARY_DIR} )
+target_include_directories( prw PRIVATE ${XCB_INCLUDE_DIR} )
+target_link_directories( prw PRIVATE ${XCB_LIBRARY_DIR} )
 
-target_link_libraries( prw PUBLIC fltk )
+target_link_libraries( prw PRIVATE xcb m)

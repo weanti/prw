@@ -1,24 +1,16 @@
 #ifndef SOURCE_H
 #define SOURCE_H
 
-#include <string>
-
-class Source
+typedef struct 
 {
-    public:
-        Source( const std::string& source );
-        Source( Source&& );
-        ~Source();
-        Source( const Source& ) = delete;
-        Source& operator=( const Source& ) = delete;
-        Source& operator=( Source&& ) = delete;
+    char* program;// owned
+    char output_filename[32];
+    int output_filefd;
+} Source;
 
-        // throws excetion in case of error
-        std::string execute();
-    private:
-        std::string mSource;
-        char mOutputFileName[15] = "/tmp/prwXXXXXX";
-        int mOutputFileFD = -1;
-};
+// string is copied
+Source create_source( char* program );
+char* exec_source( Source );
+void destroy_source( Source* );
 
 #endif
