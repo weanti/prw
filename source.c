@@ -14,13 +14,18 @@ Source create_source( char* program )
     source.program = strdup( program );
     strcpy( source.output_filename, "/tmp/prwXXXXXX" );
     source.output_filefd = mkstemp( source.output_filename );
+    if ( source.output_filefd == -1 )
+    {
+        fprintf(stderr, "failed to open %s\n", source.output_filename);
+        exit(1);
+    }
     return source;
 }
 
 char* exec_source( Source source )
 {
-    int command_length = strlen(source.program) + strlen(" > ") + strlen(source.output_filename) +1;
-    char* command = malloc( command_length * sizeof(char) );
+    int command_length = strlen(source.program) + strlen(" > ") + strlen(source.output_filename);
+    char* command = malloc( (command_length+1) * sizeof(char) );
     strcpy( command, source.program );
     strcat( command, " > " );
     strcat( command, source.output_filename );
@@ -35,18 +40,16 @@ char* exec_source( Source source )
         fprintf( stderr, "unknown error\n" );
         exit(1);
     }
+    // reposition to read the value
     lseek(source.output_filefd, 0, SEEK_SET );
     int count = read( source.output_filefd, output, 127 );
     output[count] = '\0';
     return output;
 }
 
-void destroy_source( Source* source )
+void destroy_source( Source source )
 {
-    if ( source->output_filefd != -1 )
-    {
-        close( source->output_filefd );
-        unlink( source->output_filename );
-    }
+    close( source.output_filefd );
+    unlink( source.output_filename );
 }
 

@@ -1,13 +1,13 @@
+#include "barwidget.h"
+#include "textwidget.h"
+#include "trendwidget.h"
+
 #include <xcb/xcb.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
-#include "barwidget.h"
-#include "textwidget.h"
-#include "trendwidget.h"
 
 const int DEFAULT_WIDTH = 32;
 const int DEFAULT_HEIGHT = 32;
@@ -152,27 +152,24 @@ int main(int argc, char** argv)
     xcb_flush(conn);
     
     Widget widget;
-    void (*draw)(Widget*);
+    void (*draw)(Widget*);// the widget specifig draw function
     if ( strcmp( type, "-b" ) == 0 )
     {
-        BarWidget* bw = (BarWidget*)malloc( sizeof(BarWidget) );
+        BarWidget* bw = (BarWidget*)&widget;
         draw = draw_barwidget;
         *bw = create_barwidget( w, h, source, tooltip, maxvalue, conn, window, bg_ctx, fg_ctx );
-        memcpy( &widget, bw, sizeof(BarWidget) );
     }
     else if ( strcmp( type, "-x" ) == 0 )
     {
-        TextWidget* tw = (TextWidget*)malloc( sizeof(TextWidget) );
+        TextWidget* tw = (TextWidget*)&widget;
         draw = draw_textwidget;
         *tw = create_textwidget( w, h, source, tooltip, conn, window, bg_ctx, fg_ctx );
-        memcpy( &widget, tw, sizeof(TextWidget) ); // NOTE: size of TextWidget shall not exceed size of Widget
     }
     else if ( strcmp( type, "-r" ) == 0 )
     {
-        TrendWidget* tw = (TrendWidget*)malloc( sizeof(TrendWidget) );
+        TrendWidget* tw = (TrendWidget*)&widget;
         draw = draw_trendwidget;
         *tw = create_trendwidget( w, h, source, tooltip, maxvalue, conn, window, bg_ctx, fg_ctx );
-        memcpy( &widget, tw, sizeof(TrendWidget) );
     }
     xcb_generic_event_t* event;
     time_t last_update = time(NULL);
@@ -193,7 +190,7 @@ int main(int argc, char** argv)
 
             }
             free(event);
-            //event = NULL;
+            event = NULL;
         }
 
         time_t t = time(NULL);

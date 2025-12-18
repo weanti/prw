@@ -25,5 +25,5 @@ void draw_widget( Widget* widget )
 void destroy_widget( Widget* widget )
 {
     free( widget->tooltip );
-    destroy_source( &widget->source );
+    destroy_source( widget->source );
 }
