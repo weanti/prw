@@ -35,13 +35,14 @@ Full parameter list can be obtained by ./prw -h .
 
 ## How to compile
 The only library dependency is xcb. 
+Library dependencies: xcb, pango, cairo, pangocairo.
 
 Other requirements:
 * C++11 compliant compiler
 * cmake 3.5 or newer
   
 How to compile:
-cmake -S SOURCE_LOCATION -B BUILD_LOCATION -DXCB_INCLUDE_DIR=... -DXCB_LIBRARY_DIR=...
+cmake -S SOURCE_LOCATION -B BUILD_LOCATION -DXCB_INCLUDE_DIR=... -DXCB_LIBRARY_DIR=... -DPANGO_INCLUDE_DIR=... -DPANGO_LIBRARY_DIR=... -DCAIRO_INCLUDE_DIR=... -DCAIRO_LIBRARY_DIR=... -DEXTRA_INCLUDE_DIR=...
 
 cmake --build BUILD_LOCATION
 
@@ -49,4 +50,8 @@ XCB_INCLUDE_DIR is likely /usr/include on Linux and /usr/X11R6/include on OpenBS
 
 XCB_LIBRARY_DIR is likely /usr/lib on Linux and /usr/X11R6/lib on OpenBSD
 
-Automatic xcb search may be implemented in the future.
+...
+
+Optional includes may be glib and harfbuzz. A semicolon separated list of paths can be used in EXTRA_INCLUDE_DIR.
+
+Automatic library dependency search may be implemented in the future.

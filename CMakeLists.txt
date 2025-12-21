@@ -5,7 +5,7 @@ file( GLOB SRC prw.c barwidget.h barwidget.c source.h source.c widget.h widget.c
 
 add_executable( prw ${SRC} )
 
-target_include_directories( prw PRIVATE ${XCB_INCLUDE_DIR} )
-target_link_directories( prw PRIVATE ${XCB_LIBRARY_DIR} )
+target_include_directories( prw PRIVATE ${XCB_INCLUDE_DIR} ${PANGO_INCLUDE_DIR} ${CAIRO_INCLUDE_DIR})
+target_link_directories( prw PRIVATE ${XCB_LIBRARY_DIR} ${PANGO_LIBRARY_DIR} ${CAIRO_LIBRARY_DIR})
 
-target_link_libraries( prw PRIVATE xcb m)
+target_link_libraries( prw PRIVATE xcb m cairo pango-1.0 pangocairo-1.0)
