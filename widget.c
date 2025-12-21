@@ -6,13 +6,14 @@ Widget create_widget(   int w,
                         int h,
                         char* program,
                         char* tooltip,
+                        xcb_screen_t* screen,
                         xcb_connection_t* conn,
                         xcb_drawable_t win,
                         xcb_gcontext_t bg_ctx,
                         xcb_gcontext_t fg_ctx )
 {
     Source s = create_source( program );
-    Widget widget = { .w = w, .h = h, .source = s, .conn = conn, .win = win, .bg_ctx = bg_ctx, .fg_ctx = fg_ctx };
+    Widget widget = { .w = w, .h = h, .source = s, .tooltip = tooltip, .conn = conn, .screen = screen, .win = win, .bg_ctx = bg_ctx, .fg_ctx = fg_ctx };
     return widget;
 }
 

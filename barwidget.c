@@ -7,12 +7,13 @@ BarWidget create_barwidget( int w, int h,
                             char* program,
                             char* tooltip,
                             double maxvalue,
+                            xcb_screen_t* screen, 
                             xcb_connection_t* conn,
                             xcb_drawable_t win,
                             xcb_gcontext_t bg_ctx,
                             xcb_gcontext_t fg_ctx )
 {
-    Widget base = create_widget( w, h, program, tooltip, conn, win, bg_ctx, fg_ctx );
+    Widget base = create_widget( w, h, program, tooltip, screen, conn, win, bg_ctx, fg_ctx );
     BarWidget bw = { .base = base, maxvalue = maxvalue };
     return bw;
 }

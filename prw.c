@@ -157,19 +157,19 @@ int main(int argc, char** argv)
     {
         BarWidget* bw = (BarWidget*)&widget;
         draw = draw_barwidget;
-        *bw = create_barwidget( w, h, source, tooltip, maxvalue, conn, window, bg_ctx, fg_ctx );
+        *bw = create_barwidget( w, h, source, tooltip, maxvalue, screen, conn, window, bg_ctx, fg_ctx );
     }
     else if ( strcmp( type, "-x" ) == 0 )
     {
         TextWidget* tw = (TextWidget*)&widget;
         draw = draw_textwidget;
-        *tw = create_textwidget( w, h, source, tooltip, conn, window, bg_ctx, fg_ctx );
+        *tw = create_textwidget( w, h, source, tooltip, screen, conn, window, bg_ctx, fg_ctx );
     }
     else if ( strcmp( type, "-r" ) == 0 )
     {
         TrendWidget* tw = (TrendWidget*)&widget;
         draw = draw_trendwidget;
-        *tw = create_trendwidget( w, h, source, tooltip, maxvalue, conn, window, bg_ctx, fg_ctx );
+        *tw = create_trendwidget( w, h, source, tooltip, maxvalue, screen, conn, window, bg_ctx, fg_ctx );
     }
     xcb_generic_event_t* event;
     time_t last_update = time(NULL);

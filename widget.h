@@ -10,16 +10,18 @@ typedef struct
     int w, h;
     Source source;
     char* tooltip;// owned
-	xcb_connection_t* conn;
-	xcb_drawable_t win;
-	xcb_gcontext_t bg_ctx;
-  	xcb_gcontext_t fg_ctx;
+    xcb_connection_t* conn;
+    xcb_screen_t* screen; 
+    xcb_drawable_t win;
+    xcb_gcontext_t bg_ctx;
+    xcb_gcontext_t fg_ctx;
     uint8_t padding[32];// this is s trick. This way "derived" structs can be mapped (cast) onto a Widget structure
 } Widget;
 
 Widget create_widget(   int w, int h,
                         char* program,
                         char* tooltip,
+                        xcb_screen_t* screen,
                         xcb_connection_t* conn,
                         xcb_drawable_t win,
                         xcb_gcontext_t bg_ctx,
