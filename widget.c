@@ -13,14 +13,14 @@ Widget create_widget(   int w,
                         xcb_gcontext_t fg_ctx )
 {
     Source s = create_source( program );
-    Widget widget = { .w = w, .h = h, .source = s, .tooltip = tooltip, .conn = conn, .screen = screen, .win = win, .bg_ctx = bg_ctx, .fg_ctx = fg_ctx };
+    Widget widget = { .w = w, .h = h, .source = s, .tooltip = tooltip, .xcb = { .conn = conn, .screen = screen, .win = win, .bg_ctx = bg_ctx, .fg_ctx = fg_ctx } };
     return widget;
 }
 
 void draw_widget( Widget* widget )
 {
     // draws background box
-    xcb_clear_area( widget->conn, 0, widget->win, 0, 0, widget->w, widget->h );
+    xcb_clear_area( widget->xcb.conn, 0, widget->xcb.win, 0, 0, widget->w, widget->h );
 }
 
 void destroy_widget( Widget* widget )

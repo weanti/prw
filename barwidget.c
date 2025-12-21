@@ -24,10 +24,11 @@ void draw_barwidget( Widget* widget )
     BarWidget* barwidget = (BarWidget*)widget; 
     double value = atof( exec_source( widget->source ) );
     value = fmin( widget->h, value / barwidget->maxvalue * widget->h ); 
+    _xcb_data xcb = widget->xcb;
     xcb_rectangle_t rect[] = { 0, widget->h-value, (uint16_t)widget->w, value };
-    xcb_poly_fill_rectangle(    widget->conn,
-                                widget->win,
-                                widget->fg_ctx,
+    xcb_poly_fill_rectangle(    xcb.conn,
+                                xcb.win,
+                                xcb.fg_ctx,
                                 1,
                                 rect );
 }

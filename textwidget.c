@@ -22,13 +22,14 @@ void measure_size( char* text, char* font, int* width, int* height, TextWidget* 
 void create_cairo_surface( TextWidget* tw )
 {
     xcb_visualtype_t* vt = NULL;
-    xcb_depth_iterator_t depth_iter = xcb_screen_allowed_depths_iterator( ((Widget*)tw)->screen );
+    _xcb_data xcb = tw->base.xcb;
+    xcb_depth_iterator_t depth_iter = xcb_screen_allowed_depths_iterator( xcb.screen );
     for ( ; !vt && depth_iter.rem; xcb_depth_next(&depth_iter) )
     {
         xcb_visualtype_iterator_t visual_iter = xcb_depth_visuals_iterator( depth_iter.data );
         for ( ; !vt && visual_iter.rem; xcb_visualtype_next( &visual_iter ) )
         {
-            if ( ((Widget*)tw)->screen->root_visual == visual_iter.data->visual_id )
+            if ( xcb.screen->root_visual == visual_iter.data->visual_id )
             {
                 vt = visual_iter.data;
             }
@@ -37,10 +38,10 @@ void create_cairo_surface( TextWidget* tw )
     /* --- Cairo surface --- */
     tw->surface =
         cairo_xcb_surface_create(
-            ((Widget*)tw)->conn,
-            ((Widget*)tw)->win,
+            xcb.conn,
+            xcb.win,
             vt,
-            ((Widget*)tw)->screen->width_in_pixels, ((Widget*)tw)->screen->height_in_pixels
+            xcb.screen->width_in_pixels, xcb.screen->height_in_pixels
         );
     tw->cr = cairo_create(tw->surface);
 
@@ -59,7 +60,7 @@ TextWidget create_textwidget(   int w, int h,
 {
     TextWidget tw;
     tw.base = create_widget( w, h, program, tooltip, screen, conn, win, bg_ctx, fg_ctx );
-    xcb_font_t font_id = xcb_generate_id( tw.base.conn );
+    xcb_font_t font_id = xcb_generate_id( tw.base.xcb.conn );
     create_cairo_surface( &tw );
 
     char* text = exec_source( tw.base.source );
@@ -88,7 +89,7 @@ void draw_textwidget( Widget* widget )
     pango_cairo_show_layout(textwidget->cr, textwidget->layout);
 
     cairo_surface_flush(textwidget->surface);
-    xcb_flush(((Widget*)textwidget)->conn);
+    xcb_flush(textwidget->base.xcb.conn);
 }
 
 void destroy_textwidget( Widget* widget )

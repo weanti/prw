@@ -33,14 +33,15 @@ void draw_trendwidget( Widget* widget )
     // scale this value to [0, h()] interval using mMax value
     tw->values[widget->w-1] = fmin( widget->h, value / tw->maxvalue * widget->h );
     draw_widget( widget );
+    _xcb_data xcb = widget->xcb;
     for ( int i = 0; i < widget->w-1; i++ )
     {
         // draw line
         xcb_point_t points[2] = { {.x = i, .y = widget->h}, {.x = 0, .y = -tw->values[i] } };
-        xcb_poly_line(  widget->conn,
+        xcb_poly_line(  xcb.conn,
                         XCB_COORD_MODE_PREVIOUS,
-                        widget->win,
-                        widget->fg_ctx,
+                        xcb.win,
+                        xcb.fg_ctx,
                         2,
                         points );
     }
