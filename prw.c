@@ -33,7 +33,7 @@ void usage(const char* appname)
 
 }
 
-xcb_data connect_display(int w, int h, int fg, int bg )
+xcb_data connect_display(int w, int h, int bg, int fg )
 {
     xcb_data xd;
     xd.conn = xcb_connect( NULL, NULL );
@@ -51,13 +51,15 @@ xcb_data connect_display(int w, int h, int fg, int bg )
     values[0] = (uint32_t)fg; // drawing color
     values[1] = 0;
     xcb_create_gc( xd.conn, xd.fg_ctx, xd.screen->root, mask, values );
+
+    xd.fg = fg;
+    xd.bg = bg;
         
     // create window
     xd.win = xcb_generate_id(xd.conn);
     mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     values[0] = bg;
     values[1] = XCB_EVENT_MASK_EXPOSURE;
-
 
     xcb_create_window(  xd.conn,
                         XCB_COPY_FROM_PARENT,

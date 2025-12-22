@@ -13,6 +13,7 @@ typedef struct
     xcb_gcontext_t bg_ctx;
     xcb_gcontext_t fg_ctx;
     int width, height;
+    int fg, bg;
 } xcb_data;
 
 typedef struct 

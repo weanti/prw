@@ -79,7 +79,10 @@ void draw_textwidget( Widget* widget )
     char* text = exec_source( widget->source );
     draw_widget( widget );
     /* --- Draw text --- */
-    cairo_set_source_rgb(textwidget->cr, 0, 0, 0);
+    int r = (widget->xd.fg >> 16) & 0xFF;
+    int g = (widget->xd.fg >> 8) & 0xFF;
+    int b = widget->xd.fg & 0xFF;
+    cairo_set_source_rgb(textwidget->cr, r, g, b);
     cairo_move_to(textwidget->cr, textwidget->x, textwidget->y);
     pango_cairo_show_layout(textwidget->cr, textwidget->layout);
 
