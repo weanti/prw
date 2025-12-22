@@ -12,25 +12,25 @@ typedef struct
     xcb_drawable_t win;
     xcb_gcontext_t bg_ctx;
     xcb_gcontext_t fg_ctx;
-} _xcb_data;
+    int width, height;
+} xcb_data;
 
 typedef struct 
 {
-    int w, h;
-    _xcb_data xcb;
+    xcb_data xd;
     Source source;
-    char* tooltip;// owned
-    uint8_t padding[32];// this is s trick. This way "derived" structs can be mapped (cast) onto a Widget structure
+    char* tooltip;
 } Widget;
 
-Widget create_widget(   int w, int h,
-                        char* program,
+typedef struct
+{
+    Widget base;
+    uint8_t padding[32];// this is s trick. This way "derived" structs can be mapped (cast) onto a Widget structure
+} DerivedWidget;
+
+Widget create_widget(   char* program,
                         char* tooltip,
-                        xcb_screen_t* screen,
-                        xcb_connection_t* conn,
-                        xcb_drawable_t win,
-                        xcb_gcontext_t bg_ctx,
-                        xcb_gcontext_t fg_ctx );
+                        xcb_data xd );
 void draw_widget( Widget* );
 void destroy_widget( Widget* );
 

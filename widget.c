@@ -2,25 +2,25 @@
 
 #include <stdlib.h>
 
-Widget create_widget(   int w,
-                        int h,
-                        char* program,
+Widget create_widget(   char* program,
                         char* tooltip,
-                        xcb_screen_t* screen,
-                        xcb_connection_t* conn,
-                        xcb_drawable_t win,
-                        xcb_gcontext_t bg_ctx,
-                        xcb_gcontext_t fg_ctx )
+                        xcb_data xd )
 {
     Source s = create_source( program );
-    Widget widget = { .w = w, .h = h, .source = s, .tooltip = tooltip, .xcb = { .conn = conn, .screen = screen, .win = win, .bg_ctx = bg_ctx, .fg_ctx = fg_ctx } };
+    Widget widget = { .source = s, .tooltip = tooltip, .xd = xd };
     return widget;
 }
 
 void draw_widget( Widget* widget )
 {
     // draws background box
-    xcb_clear_area( widget->xcb.conn, 0, widget->xcb.win, 0, 0, widget->w, widget->h );
+    xcb_clear_area(widget->xd.conn,
+            0, 
+            widget->xd.win, 
+            0, 
+            0, 
+            widget->xd.screen->width_in_pixels, 
+            widget->xd.screen->height_in_pixels );
 }
 
 void destroy_widget( Widget* widget )

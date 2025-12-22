@@ -11,15 +11,10 @@ typedef struct
     double maxvalue; 
 } BarWidget;
 
-BarWidget create_barwidget( int w, int h,
-                            char* program,
+BarWidget create_barwidget( char* program,
                             char* tooltip,
                             double maxvalue,
-                            xcb_screen_t* screen, 
-                            xcb_connection_t* conn,
-                            xcb_drawable_t win,
-                            xcb_gcontext_t bg_ctx,
-                            xcb_gcontext_t fg_ctx );
+                            xcb_data xd );
 void draw_barwidget( Widget* );
 void destroy_barwidget( Widget* );
 

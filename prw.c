@@ -33,6 +33,60 @@ void usage(const char* appname)
 
 }
 
+xcb_data connect_display(int w, int h, int fg, int bg )
+{
+    xcb_data xd;
+    xd.conn = xcb_connect( NULL, NULL );
+    xd.screen = xcb_setup_roots_iterator( xcb_get_setup( xd.conn ) ).data;
+    
+    // create background color context
+    xd.bg_ctx = xcb_generate_id( xd.conn );
+    uint32_t mask = XCB_GC_BACKGROUND | XCB_GC_GRAPHICS_EXPOSURES;
+    uint32_t values[2] = { (uint32_t)bg, 0 }; // background color
+    xcb_create_gc( xd.conn, xd.bg_ctx, xd.screen->root, mask, values );
+
+    // create foreground (drawing) color context
+    xd.fg_ctx = xcb_generate_id( xd.conn );
+    mask = XCB_GC_FOREGROUND | XCB_GC_GRAPHICS_EXPOSURES;
+    values[0] = (uint32_t)fg; // drawing color
+    values[1] = 0;
+    xcb_create_gc( xd.conn, xd.fg_ctx, xd.screen->root, mask, values );
+        
+    // create window
+    xd.win = xcb_generate_id(xd.conn);
+    mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
+    values[0] = bg;
+    values[1] = XCB_EVENT_MASK_EXPOSURE;
+
+
+    xcb_create_window(  xd.conn,
+                        XCB_COPY_FROM_PARENT,
+                        xd.win,
+                        xd.screen->root,
+                        0,
+                        0,
+                        w,
+                        h,
+                        1,
+                        XCB_WINDOW_CLASS_INPUT_OUTPUT,
+                        xd.screen->root_visual,
+                        mask,
+                        values );
+    xd.width = w;
+    xd.height = h;
+    char * name = "PRW";
+    xcb_change_property(xd.conn,
+                        XCB_PROP_MODE_APPEND,
+                        xd.win,
+                        XCB_ATOM_WM_CLASS,
+                        XCB_ATOM_STRING,
+                        8,
+                        strlen(name),
+                        name );
+    xcb_map_window(xd.conn, xd.win);
+    return xd;
+} 
+
 int main(int argc, char** argv)
 {
     int w = DEFAULT_WIDTH;
@@ -100,89 +154,43 @@ int main(int argc, char** argv)
         usage(argv[0]);
         exit(1);
     }
-    // connect
-    xcb_connection_t* conn = xcb_connect( NULL, NULL );
-    xcb_screen_t* screen = xcb_setup_roots_iterator( xcb_get_setup( conn ) ).data;
-    
-    // create background color context
-    xcb_gcontext_t bg_ctx = xcb_generate_id( conn );
-    uint32_t mask = XCB_GC_BACKGROUND | XCB_GC_GRAPHICS_EXPOSURES;
-    uint32_t values[2] = { (uint32_t)bg, 0 }; // background color
-    xcb_create_gc( conn, bg_ctx, screen->root, mask, values );
-
-    // create foreground (drawing) color context
-    xcb_gcontext_t fg_ctx = xcb_generate_id( conn );
-    mask = XCB_GC_FOREGROUND | XCB_GC_GRAPHICS_EXPOSURES;
-    values[0] = (uint32_t)fg; // drawing color
-    values[1] = 0;
-    xcb_create_gc( conn, fg_ctx, screen->root, mask, values );
-        
-    // create window
-    xcb_drawable_t window = xcb_generate_id(conn);
-    mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-    values[0] = bg;
-    values[1] = XCB_EVENT_MASK_EXPOSURE;
-
-
-    xcb_create_window(  conn,
-                        XCB_COPY_FROM_PARENT,
-                        window,
-                        screen->root,
-                        0,
-                        0,
-                        w,
-                        h,
-                        1,
-                        XCB_WINDOW_CLASS_INPUT_OUTPUT,
-                        screen->root_visual,
-                        mask,
-                        values );
-    char * name = "PRW";
-    xcb_change_property(conn,
-                        XCB_PROP_MODE_APPEND,
-                        window,
-                        XCB_ATOM_WM_CLASS,
-                        XCB_ATOM_STRING,
-                        8,
-                        strlen(name),
-                        name );
-    xcb_map_window(conn, window);
+    xcb_data xd = connect_display( w, h, bg, fg );
     
     // show
-    xcb_flush(conn);
+    xcb_flush(xd.conn);
     
-    Widget widget;
+    DerivedWidget widget;
     void (*draw)(Widget*);// the widget specifig draw function
     if ( strcmp( type, "-b" ) == 0 )
     {
         BarWidget* bw = (BarWidget*)&widget;
         draw = draw_barwidget;
-        *bw = create_barwidget( w, h, source, tooltip, maxvalue, screen, conn, window, bg_ctx, fg_ctx );
+        *bw = create_barwidget( source, tooltip, maxvalue, xd );
     }
     else if ( strcmp( type, "-x" ) == 0 )
     {
         TextWidget* tw = (TextWidget*)&widget;
         draw = draw_textwidget;
-        *tw = create_textwidget( w, h, source, tooltip, screen, conn, window, bg_ctx, fg_ctx );
+        *tw = create_textwidget( source, tooltip, xd );
     }
     else if ( strcmp( type, "-r" ) == 0 )
     {
         TrendWidget* tw = (TrendWidget*)&widget;
         draw = draw_trendwidget;
-        *tw = create_trendwidget( w, h, source, tooltip, maxvalue, screen, conn, window, bg_ctx, fg_ctx );
+        *tw = create_trendwidget( source, tooltip, maxvalue, xd );
     }
     xcb_generic_event_t* event;
     time_t last_update = time(NULL);
     while( 1 ) 
     {
-        if ( (event = xcb_poll_for_event(conn) ) )
+        if ( (event = xcb_poll_for_event(widget.base.xd.conn) ) )
         {
             switch( event->response_type & ~0x80 )
             {
                 case XCB_EXPOSE:
                 {
-                    draw( &widget );
-                    xcb_flush(conn);
+                    draw( &widget.base );
+                    xcb_flush(widget.base.xd.conn);
                 }
                 break;
                 default:
@@ -197,13 +205,13 @@ int main(int argc, char** argv)
         if ( t - last_update > repeat )
         {
             last_update = t;
-            draw( &widget );
-            xcb_flush(conn);
+            draw( &widget.base );
+            xcb_flush(widget.base.xd.conn);
         }
-        xcb_flush(conn);
+        xcb_flush(widget.base.xd.conn);
         nanosleep( &(struct timespec){.tv_nsec = 500000000 }, NULL );
     }
-    destroy_widget( &widget );
-    xcb_disconnect( conn );
+    destroy_widget( &widget.base );
+    xcb_disconnect( widget.base.xd.conn );
     return 0;
 }

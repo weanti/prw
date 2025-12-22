@@ -15,14 +15,9 @@ typedef struct
     PangoLayout* layout;
 } TextWidget;
 
-TextWidget create_textwidget(   int w, int h,
-                                char* program,
+TextWidget create_textwidget(   char* program,
                                 char* tooltip,
-                                xcb_screen_t* screen, 
-                                xcb_connection_t* conn,
-                                xcb_drawable_t win,
-                                xcb_gcontext_t bg_ctx,
-                                xcb_gcontext_t fg_ctx );
+                                xcb_data xd );
 void draw_textwidget( Widget* );
 void destroy_textwidget( Widget* );
 
