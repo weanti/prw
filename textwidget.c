@@ -85,6 +85,7 @@ void draw_textwidget( Widget* widget )
     cairo_set_source_rgb(textwidget->cr, r, g, b);
     cairo_move_to(textwidget->cr, textwidget->x, textwidget->y);
     pango_cairo_show_layout(textwidget->cr, textwidget->layout);
+    pango_layout_set_text(textwidget->layout, text, -1);
 
     cairo_surface_flush(textwidget->surface);
     xcb_flush( widget->xd.conn);
