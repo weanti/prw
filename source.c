@@ -30,6 +30,7 @@ char* exec_source( Source source )
     strcat( command, " > " );
     strcat( command, source.output_filename );
     int ret = system( command );
+    free( command );
     if ( ret == -1 )
     {
         fprintf(stderr, "%s\n", strerror( errno ) );
