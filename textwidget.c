@@ -75,6 +75,7 @@ TextWidget create_textwidget(   char* program,
 
 void draw_textwidget( Widget* widget )
 {
+    printf( "drwaing %llu\n", time(NULL) );
     TextWidget* textwidget = (TextWidget*)widget;
     char* text = exec_source( widget->source );
     draw_widget( widget );
@@ -88,7 +89,6 @@ void draw_textwidget( Widget* widget )
     pango_layout_set_text(textwidget->layout, text, -1);
 
     cairo_surface_flush(textwidget->surface);
-    xcb_flush( widget->xd.conn);
 }
 
 void destroy_textwidget( Widget* widget )

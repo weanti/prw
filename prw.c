@@ -183,6 +183,7 @@ int main(int argc, char** argv)
     }
     xcb_generic_event_t* event;
     time_t last_update = time(NULL);
+    int update_needed = 0;
     while( 1 ) 
     {
         if ( (event = xcb_poll_for_event(widget.base.xd.conn) ) )
@@ -190,11 +191,8 @@ int main(int argc, char** argv)
             switch( event->response_type & ~0x80 )
             {
                 case XCB_EXPOSE:
-                {
-                    draw( &widget.base );
-                    xcb_flush(widget.base.xd.conn);
-                }
-                break;
+                    update_needed = 1;
+                    break;
                 default:
                     break;
 
@@ -204,13 +202,14 @@ int main(int argc, char** argv)
         }
 
         time_t t = time(NULL);
-        if ( t - last_update > repeat )
+        update_needed = update_needed || ( t - last_update >= repeat );
+        if ( update_needed )
         {
             last_update = t;
             draw( &widget.base );
             xcb_flush(widget.base.xd.conn);
+            update_needed = 0;
         }
-        xcb_flush(widget.base.xd.conn);
         nanosleep( &(struct timespec){.tv_nsec = 500000000 }, NULL );
     }
     destroy_widget( &widget.base );
