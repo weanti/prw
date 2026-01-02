@@ -37,9 +37,9 @@ Full parameter list can be obtained by ./prw -h .
 Library dependencies: xcb, pango, cairo, pangocairo.
 
 Other requirements:
-* C compliant compiler
+* C compiler
 * pkg-config
   
 How to compile:
 make
-
+extra compile flags (like debug symbols "-g") can be appened to the default flags by defining CFLAGS environment variable. By default no compile time optimization is enabled and probably that should be left that way (see comment in the makefile(s)).
