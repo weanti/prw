@@ -39,7 +39,8 @@ Library dependencies: xcb, pango, cairo, pangocairo.
 Other requirements:
 * C compiler
 * pkg-config
+* bsd make (make on OpenBSD, FreeBSD, NetBSD and bmake on Linux)
   
 How to compile:
-make
-extra compile flags (like debug symbols "-g") can be appened to the default flags by defining CFLAGS environment variable. By default no compile time optimization is enabled and probably that should be left that way (see comment in the makefile(s)).
+make (or bmake on Linux)
+extra compile flags (like debug symbols "-g") can be appened to the default flags by defining CFLAGS environment variable. By default no compile time optimization is enabled and probably that should be left that way (see comment in the makefile).
