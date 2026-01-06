@@ -22,14 +22,14 @@ void measure_size( char* text, char* font, int* width, int* height, TextWidget* 
 void create_cairo_surface( TextWidget* tw )
 {
     xcb_visualtype_t* vt = NULL;
-    xcb_data xd = tw->base.xd;
-    xcb_depth_iterator_t depth_iter = xcb_screen_allowed_depths_iterator( xd.screen );
+    window_data wd= tw->base.wd;
+    xcb_depth_iterator_t depth_iter = xcb_screen_allowed_depths_iterator( wd.session.screen );
     for ( ; !vt && depth_iter.rem; xcb_depth_next(&depth_iter) )
     {
         xcb_visualtype_iterator_t visual_iter = xcb_depth_visuals_iterator( depth_iter.data );
         for ( ; !vt && visual_iter.rem; xcb_visualtype_next( &visual_iter ) )
         {
-            if ( xd.screen->root_visual == visual_iter.data->visual_id )
+            if ( wd.session.screen->root_visual == visual_iter.data->visual_id )
             {
                 vt = visual_iter.data;
             }
@@ -38,10 +38,10 @@ void create_cairo_surface( TextWidget* tw )
     /* --- Cairo surface --- */
     tw->surface =
         cairo_xcb_surface_create(
-            xd.conn,
-            xd.win,
+            wd.session.conn,
+            wd.win,
             vt,
-            xd.width, xd.height
+            wd.width, wd.height
         );
     tw->cr = cairo_create(tw->surface);
 
@@ -51,11 +51,11 @@ void create_cairo_surface( TextWidget* tw )
 
 TextWidget create_textwidget(   char* program,
                                 char* tooltip,
-                                xcb_data xd )
+                                window_data wd )
 {
     TextWidget tw;
-    tw.base = create_widget( program, tooltip, xd );
-    xcb_font_t font_id = xcb_generate_id( tw.base.xd.conn );
+    tw.base = create_widget( program, tooltip, wd );
+    xcb_font_t font_id = xcb_generate_id( tw.base.wd.session.conn );
     create_cairo_surface( &tw );
 
     char* text = exec_source( tw.base.source );
@@ -68,8 +68,8 @@ TextWidget create_textwidget(   char* program,
     // TODO: use a font priority list
     measure_size( text, "Sans 8",  &width, &height, &tw );
    
-    tw.x = (xd.width - width)/2;
-    tw.y = (xd.height - height)/2;
+    tw.x = (wd.width - width)/2;
+    tw.y = (wd.height - height)/2;
     return tw;
 }
 
@@ -80,9 +80,9 @@ void draw_textwidget( Widget* widget )
     char* text = exec_source( widget->source );
     draw_widget( widget );
     /* --- Draw text --- */
-    int r = (widget->xd.fg >> 16) & 0xFF;
-    int g = (widget->xd.fg >> 8) & 0xFF;
-    int b = widget->xd.fg & 0xFF;
+    int r = (widget->wd.fg >> 16) & 0xFF;
+    int g = (widget->wd.fg >> 8) & 0xFF;
+    int b = widget->wd.fg & 0xFF;
     cairo_set_source_rgb(textwidget->cr, r, g, b);
     cairo_move_to(textwidget->cr, textwidget->x, textwidget->y);
     pango_cairo_show_layout(textwidget->cr, textwidget->layout);

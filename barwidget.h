@@ -2,8 +2,7 @@
 #define BARWIDGET_H
 
 #include "widget.h"
-
-#include <xcb/xcb.h>
+#include "xconnection.h"
 
 typedef struct
 {
@@ -14,7 +13,7 @@ typedef struct
 BarWidget create_barwidget( char* program,
                             char* tooltip,
                             double maxvalue,
-                            xcb_data xd );
+                            window_data wd );
 void draw_barwidget( Widget* );
 void destroy_barwidget( Widget* );
 

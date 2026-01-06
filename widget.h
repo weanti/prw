@@ -2,23 +2,11 @@
 #define WIDGET_H
 
 #include "source.h"
-
-#include <xcb/xcb.h>
-
-typedef struct
-{
-    xcb_connection_t* conn;
-    xcb_screen_t* screen; 
-    xcb_drawable_t win;
-    xcb_gcontext_t bg_ctx;
-    xcb_gcontext_t fg_ctx;
-    int width, height;
-    int fg, bg;
-} xcb_data;
+#include "xconnection.h"
 
 typedef struct 
 {
-    xcb_data xd;
+    window_data wd;
     Source source;
     char* tooltip;
 } Widget;
@@ -31,7 +19,7 @@ typedef struct
 
 Widget create_widget(   char* program,
                         char* tooltip,
-                        xcb_data xd );
+                        window_data wd );
 void draw_widget( Widget* );
 void destroy_widget( Widget* );
 

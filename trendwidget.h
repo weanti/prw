@@ -2,6 +2,7 @@
 #define TRENDWIDGET_H
 
 #include "widget.h"
+#include "xconnection.h"
 
 typedef struct 
 {
@@ -13,7 +14,7 @@ typedef struct
 TrendWidget create_trendwidget( char* program,
                                 char* tooltip,
                                 double maxvalue,
-                                xcb_data xd );
+                                window_data xd );
 void draw_trendwidget( Widget* );
 void destroy_trendwidget( Widget* );
 

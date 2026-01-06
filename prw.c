@@ -1,6 +1,7 @@
 #include "barwidget.h"
 #include "textwidget.h"
 #include "trendwidget.h"
+#include "xconnection.h"
 
 #include <xcb/xcb.h>
 
@@ -32,62 +33,6 @@ void usage(const char* appname)
                 -tooltip: tooltip for the widget.\n", appname, DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_FG, DEFAULT_BG, DEFAULT_REPEAT, DEFAULT_MAXVALUE );
 
 }
-
-xcb_data connect_display(int w, int h, int bg, int fg )
-{
-    xcb_data xd;
-    xd.conn = xcb_connect( NULL, NULL );
-    xd.screen = xcb_setup_roots_iterator( xcb_get_setup( xd.conn ) ).data;
-    
-    // create background color context
-    xd.bg_ctx = xcb_generate_id( xd.conn );
-    uint32_t mask = XCB_GC_BACKGROUND | XCB_GC_GRAPHICS_EXPOSURES;
-    uint32_t values[2] = { (uint32_t)bg, 0 }; // background color
-    xcb_create_gc( xd.conn, xd.bg_ctx, xd.screen->root, mask, values );
-
-    // create foreground (drawing) color context
-    xd.fg_ctx = xcb_generate_id( xd.conn );
-    mask = XCB_GC_FOREGROUND | XCB_GC_GRAPHICS_EXPOSURES;
-    values[0] = (uint32_t)fg; // drawing color
-    values[1] = 0;
-    xcb_create_gc( xd.conn, xd.fg_ctx, xd.screen->root, mask, values );
-
-    xd.fg = fg;
-    xd.bg = bg;
-        
-    // create window
-    xd.win = xcb_generate_id(xd.conn);
-    mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-    values[0] = bg;
-    values[1] = XCB_EVENT_MASK_EXPOSURE;
-
-    xcb_create_window(  xd.conn,
-                        XCB_COPY_FROM_PARENT,
-                        xd.win,
-                        xd.screen->root,
-                        0,
-                        0,
-                        w,
-                        h,
-                        1,
-                        XCB_WINDOW_CLASS_INPUT_OUTPUT,
-                        xd.screen->root_visual,
-                        mask,
-                        values );
-    xd.width = w;
-    xd.height = h;
-    char * name = "PRW";
-    xcb_change_property(xd.conn,
-                        XCB_PROP_MODE_APPEND,
-                        xd.win,
-                        XCB_ATOM_WM_CLASS,
-                        XCB_ATOM_STRING,
-                        8,
-                        strlen(name),
-                        name );
-    xcb_map_window(xd.conn, xd.win);
-    return xd;
-} 
 
 int main(int argc, char** argv)
 {
@@ -156,10 +101,11 @@ int main(int argc, char** argv)
         usage(argv[0]);
         exit(1);
     }
-    xcb_data xd = connect_display( w, h, bg, fg );
+    session_data session = connect_display();
+    window_data wd = create_window( session, w, h, bg, fg );
     
     // show
-    xcb_flush(xd.conn);
+    xcb_flush(wd.session.conn);
     
     DerivedWidget widget;
     void (*draw)(Widget*);// the widget specifig draw function
@@ -167,26 +113,26 @@ int main(int argc, char** argv)
     {
         BarWidget* bw = (BarWidget*)&widget;
         draw = draw_barwidget;
-        *bw = create_barwidget( source, tooltip, maxvalue, xd );
+        *bw = create_barwidget( source, tooltip, maxvalue, wd );
     }
     else if ( strcmp( type, "-x" ) == 0 )
     {
         TextWidget* tw = (TextWidget*)&widget;
         draw = draw_textwidget;
-        *tw = create_textwidget( source, tooltip, xd );
+        *tw = create_textwidget( source, tooltip, wd );
     }
     else if ( strcmp( type, "-r" ) == 0 )
     {
         TrendWidget* tw = (TrendWidget*)&widget;
         draw = draw_trendwidget;
-        *tw = create_trendwidget( source, tooltip, maxvalue, xd );
+        *tw = create_trendwidget( source, tooltip, maxvalue, wd );
     }
     xcb_generic_event_t* event;
     time_t last_update = time(NULL);
     int update_needed = 0;
     while( 1 ) 
     {
-        if ( (event = xcb_poll_for_event(widget.base.xd.conn) ) )
+        if ( (event = xcb_poll_for_event(widget.base.wd.session.conn) ) )
         {
             switch( event->response_type & ~0x80 )
             {
@@ -207,12 +153,12 @@ int main(int argc, char** argv)
         {
             last_update = t;
             draw( &widget.base );
-            xcb_flush(widget.base.xd.conn);
+            xcb_flush(widget.base.wd.session.conn);
             update_needed = 0;
         }
         nanosleep( &(struct timespec){.tv_nsec = 500000000 }, NULL );
     }
     destroy_widget( &widget.base );
-    xcb_disconnect( widget.base.xd.conn );
+    xcb_disconnect( widget.base.wd.session.conn );
     return 0;
 }
