@@ -25,7 +25,7 @@ Source create_source( char* program )
 char* exec_source( Source source )
 {
     int command_length = strlen(source.program) + strlen(" > ") + strlen(source.output_filename);
-    char* command = malloc( (command_length+1) * sizeof(char) );
+    char* command = (char*)malloc( (command_length+1) * sizeof(char) );
     strcpy( command, source.program );
     strcat( command, " > " );
     strcat( command, source.output_filename );

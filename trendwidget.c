@@ -12,7 +12,7 @@ TrendWidget create_trendwidget( char* program,
 {
     Widget base = create_widget( program, tooltip, wd ); 
     double* values = (double*)malloc( wd.width*sizeof(double) );
-    TrendWidget tw = { .base = base, .maxvalue = maxvalue, .values = values };
+    TrendWidget tw = { .base = base, .values = values, .maxvalue = maxvalue };
     return tw;
 }
 

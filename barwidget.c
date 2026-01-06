@@ -9,7 +9,7 @@ BarWidget create_barwidget( char* program,
                             window_data xd )
 {
     Widget base = create_widget( program, tooltip, xd );
-    BarWidget bw = { .base = base, maxvalue = maxvalue };
+    BarWidget bw = { .base = base, .maxvalue = maxvalue };
     return bw;
 }
 

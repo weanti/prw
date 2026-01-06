@@ -7,7 +7,7 @@ Widget create_widget(   char* program,
                         window_data wd )
 {
     Source s = create_source( program );
-    Widget widget = { .source = s, .tooltip = tooltip, .wd = wd };
+    Widget widget = { .wd = wd, .source = s, .tooltip = tooltip };
     return widget;
 }
 
