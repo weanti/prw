@@ -27,7 +27,7 @@ void draw_trendwidget( Widget* widget )
     // scale this value to [0, h()] interval using mMax value
     tw->values[widget->wd.width-1] = fmin( widget->wd.height, value / tw->maxvalue * widget->wd.height );
     draw_widget( widget );
-    for ( int i = 0; i < widget->wd.width-1; i++ )
+    for ( int i = 0; i < widget->wd.width; i++ )
     {
         // draw line
         xcb_point_t points[2] = { {.x = i, .y = widget->wd.height }, {.x = 0, .y = -tw->values[i] } };
