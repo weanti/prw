@@ -6,27 +6,41 @@
 #include <string.h>
 #include <unistd.h>
 
+
 char output[128];
 
-Source create_source( char* program )
+Source create_dynamic_source( char* source )
 {
-    Source source;
-    source.program = strdup( program );
-    strcpy( source.output_filename, "/tmp/prwXXXXXX" );
-    source.output_filefd = mkstemp( source.output_filename );
-    if ( source.output_filefd == -1 )
+    Source s;
+    s.source = strdup( source );
+    strcpy( s.output_filename, "/tmp/prwXXXXXX" );
+    s.output_filefd = mkstemp( s.output_filename );
+    if ( s.output_filefd == -1 )
     {
-        fprintf(stderr, "failed to open %s\n", source.output_filename);
+        fprintf(stderr, "failed to open %s\n", s.output_filename);
         exit(1);
     }
-    return source;
+    return s;
 }
 
-char* exec_source( Source source )
+Source create_static_source( char* source )
 {
-    int command_length = strlen(source.program) + strlen(" > ") + strlen(source.output_filename);
+    Source s;
+    s.source = strdup( source );
+    s.output_filefd = -1;
+    return s;
+}
+
+char* execute( Source source )
+{
+    // static source
+    if ( source.output_filefd == -1 )
+    {
+        return source.source;
+    }
+    int command_length = strlen(source.source) + strlen(" > ") + strlen(source.output_filename);
     char* command = (char*)malloc( (command_length+1) * sizeof(char) );
-    strcpy( command, source.program );
+    strcpy( command, source.source);
     strcat( command, " > " );
     strcat( command, source.output_filename );
     int ret = system( command );

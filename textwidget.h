@@ -16,9 +16,9 @@ typedef struct
     PangoLayout* layout;
 } TextWidget;
 
-TextWidget create_textwidget(   char* program,
-                                char* tooltip,
-                                window_data xd );
+void measure_size( char* text, char* font, int* width, int* height, PangoLayout* layout );
+void create_cairo_surface( TextWidget* tw );
+
 void draw_textwidget( Widget* );
 void destroy_textwidget( Widget* );
 

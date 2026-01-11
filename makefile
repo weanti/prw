@@ -3,7 +3,7 @@ FLAGS!= pkg-config --cflags xcb pango cairo pangocairo
 CFLAGS+=-O0 ${FLAGS}
 LDFLAGS!= pkg-config --libs xcb pango cairo pangocairo
 LDFLAGS+=-lm
-SOURCES=prw.c barwidget.c trendwidget.c textwidget.c widget.c source.c xconnection.c
+SOURCES=prw.c barwidget.c trendwidget.c textwidget.c dynamic_textwidget.c static_textwidget.c widget.c source.c xconnection.c
 OBJECTS=${SOURCES:S/.c/.o/g}
 
 .MAIN: prw

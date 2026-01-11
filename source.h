@@ -3,14 +3,16 @@
 
 typedef struct 
 {
-    char* program;
+    char* source;
     char output_filename[32];
     int output_filefd;
 } Source;
 
 // string is copied
-Source create_source( char* program );
-char* exec_source( Source );
+Source create_static_source( char* source );
+// string is copied
+Source create_dynamic_source( char* source );
+char* execute( Source );
 void destroy_source( Source );
 
 #endif

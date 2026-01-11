@@ -7,16 +7,16 @@
 #include <string.h>
 #include <stdio.h>
 
-void measure_size( char* text, char* font, int* width, int* height, TextWidget* tw )
+void measure_size( char* text, char* font, int* width, int* height, PangoLayout* layout )
 {
-    pango_layout_set_text(tw->layout, text, -1);
+    pango_layout_set_text(layout, text, -1);
 
     PangoFontDescription *font_desc =
         pango_font_description_from_string(font);
-    pango_layout_set_font_description(tw->layout, font_desc);
+    pango_layout_set_font_description(layout, font_desc);
 
     /* --- Measure text --- */
-    pango_layout_get_pixel_size(tw->layout, width, height);
+    pango_layout_get_pixel_size(layout, width, height);
 }
 
 void create_cairo_surface( TextWidget* tw )
@@ -49,35 +49,10 @@ void create_cairo_surface( TextWidget* tw )
     tw->layout = pango_cairo_create_layout(tw->cr);
 }
 
-TextWidget create_textwidget(   char* program,
-                                char* tooltip,
-                                window_data wd )
-{
-    TextWidget tw;
-    tw.base = create_widget( program, tooltip, wd );
-    xcb_font_t font_id = xcb_generate_id( tw.base.wd.session.conn );
-    create_cairo_surface( &tw );
-
-    char* text = exec_source( tw.base.source );
-    char* eol = strpbrk( text, "\n\r");
-    if ( eol )
-    {
-        *eol = '\0';
-    }
-    int width, height;
-    // TODO: use a font priority list
-    measure_size( text, "Sans 8",  &width, &height, &tw );
-   
-    tw.x = (wd.width - width)/2;
-    tw.y = (wd.height - height)/2;
-    return tw;
-}
-
 void draw_textwidget( Widget* widget )
 {
-    printf( "drwaing %llu\n", time(NULL) );
     TextWidget* textwidget = (TextWidget*)widget;
-    char* text = exec_source( widget->source );
+    char* text = execute( widget->source );
     draw_widget( widget );
     /* --- Draw text --- */
     int r = (widget->wd.fg >> 16) & 0xFF;
