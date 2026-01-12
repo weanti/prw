@@ -9,10 +9,10 @@
 
 char output[128];
 
-Source create_dynamic_source( char* source )
+Source create_dynamic_source( char* program )
 {
     Source s;
-    s.source = strdup( source );
+    s.source = strdup( program );
     strcpy( s.output_filename, "/tmp/prwXXXXXX" );
     s.output_filefd = mkstemp( s.output_filename );
     if ( s.output_filefd == -1 )
@@ -23,15 +23,15 @@ Source create_dynamic_source( char* source )
     return s;
 }
 
-Source create_static_source( char* source )
+Source create_static_source( char* text )
 {
     Source s;
-    s.source = strdup( source );
+    s.source = strdup( text );
     s.output_filefd = -1;
     return s;
 }
 
-char* execute( Source source )
+char* get( Source source )
 {
     // static source
     if ( source.output_filefd == -1 )

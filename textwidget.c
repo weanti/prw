@@ -52,7 +52,7 @@ void create_cairo_surface( TextWidget* tw )
 void draw_textwidget( Widget* widget )
 {
     TextWidget* textwidget = (TextWidget*)widget;
-    char* text = execute( widget->source );
+    char* text = get( widget->source );
     draw_widget( widget );
     /* --- Draw text --- */
     int r = (widget->wd.fg >> 16) & 0xFF;

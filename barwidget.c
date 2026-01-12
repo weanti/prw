@@ -17,7 +17,7 @@ void draw_barwidget( Widget* widget )
 {
     draw_widget( widget );
     BarWidget* barwidget = (BarWidget*)widget; 
-    double value = atof( execute( widget->source ) );
+    double value = atof( get( widget->source ) );
     value = fmin( widget->wd.height, value / barwidget->maxvalue * widget->wd.height ); 
     window_data wd = widget->wd;
     xcb_rectangle_t rect[] = { 0, wd.height-value, (uint16_t)wd.width, value };

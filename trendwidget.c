@@ -23,7 +23,7 @@ void draw_trendwidget( Widget* widget )
     {
         tw->values[i] = tw->values[i+1];
     }
-    double value = atof( execute( widget->source ) );
+    double value = atof( get( widget->source ) );
     // scale this value to [0, h()] interval using mMax value
     tw->values[widget->wd.width-1] = fmin( widget->wd.height, value / tw->maxvalue * widget->wd.height );
     draw_widget( widget );
