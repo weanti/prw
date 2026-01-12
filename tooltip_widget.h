@@ -6,6 +6,6 @@
 #include "textwidget.h"
 
 // create text widget with static output
-TextWidget create_tooltip_textwidget(   char* text,
-                                        window_data xd );
+TextWidget create_tooltipwidget(   char* text,
+                                   window_data xd );
 #endif
