@@ -1,6 +1,6 @@
 #include "barwidget.h"
-#include "dynamic_textwidget.h"
-#include "static_textwidget.h"
+#include "textwidget.h"
+#include "textwidget.h"
 #include "trendwidget.h"
 #include "xconnection.h"
 
@@ -120,7 +120,7 @@ int main(int argc, char** argv)
     {
         TextWidget* tw = (TextWidget*)&widget;
         draw = draw_textwidget;
-        *tw = create_dynamic_textwidget( source, tooltip, wd );
+        *tw = create_textwidget( source, tooltip, wd );
     }
     else if ( strcmp( type, "-r" ) == 0 )
     {
