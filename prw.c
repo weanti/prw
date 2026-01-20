@@ -35,42 +35,42 @@ void usage(const char* appname)
 
 }
 
-int main(int argc, char** argv)
+// fills passed parameters based on the command line args
+// returns 1 if parse is OK, 0 otherwise
+int parse_args(    int argc, char** argv,
+                   int* w, int* h,
+                   int* fg, int* bg,
+                   int* repeat,
+                   int* maxvalue,
+                   char* source,
+                   char* type,
+                   char* tooltip )
 {
-    int w = DEFAULT_WIDTH;
-    int h = DEFAULT_HEIGHT;
-    int fg = DEFAULT_FG;
-    int bg = DEFAULT_BG;
-    int repeat = DEFAULT_REPEAT;
-    int maxvalue = DEFAULT_MAXVALUE;
-    char* source = NULL;
-    char* type = NULL;
-    char* tooltip = NULL;
     for( int i = 1; i < argc; i++ )
     {
         if ( strcmp( argv[i], "-w" ) == 0 && i+1 < argc )
         {
-            w = atoi( argv[i+1] );
+            *w = atoi( argv[i+1] );
         }
         else if ( strcmp( argv[i], "-h" ) == 0 && i+1 < argc )
         {
-            h = atoi( argv[i+1] );
+            *h = atoi( argv[i+1] );
         }
         else if ( strcmp( argv[i], "-fg" ) == 0 && i+1 < argc )
         {
-            sscanf( argv[i+1], "%x", &fg );
+            sscanf( argv[i+1], "%x", fg );
         }
         else if ( strcmp( argv[i], "-bg" ) == 0 && i+1 < argc )
         {
-            sscanf( argv[i+1], "%x", &bg );
+            sscanf( argv[i+1], "%x", bg );
         }
         else if ( strcmp( argv[i], "-repeat" ) == 0 && i+1 < argc )
         {
-            repeat = atoi( argv[i+1] );
+            *repeat = atoi( argv[i+1] );
         }
         else if ( strcmp( argv[i], "-maxvalue" ) == 0 && i+1 < argc )
         {
-            maxvalue = atoi( argv[i+1] );
+            *maxvalue = atoi( argv[i+1] );
         }
         else if ( strcmp( argv[i], "-source" ) == 0 && i+1 < argc )
         {
@@ -89,7 +89,23 @@ int main(int argc, char** argv)
             usage(argv[0]);
             return 0;
         }
-    } 
+    }
+    return 1;
+}
+
+int main(int argc, char** argv)
+{
+    int w = DEFAULT_WIDTH;
+    int h = DEFAULT_HEIGHT;
+    int fg = DEFAULT_FG;
+    int bg = DEFAULT_BG;
+    int repeat = DEFAULT_REPEAT;
+    int maxvalue = DEFAULT_MAXVALUE;
+    char* source = NULL;
+    char* type = NULL;
+    char* tooltip = NULL;
+    if ( ! parse_args( argc, argv, &w, &h, &fg, &bg, &repeat, &maxvalue, source, type, tooltip ) )
+        return 0;
     if ( ! source )
     {
         puts("-source is mandatory");
