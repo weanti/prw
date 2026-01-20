@@ -1,6 +1,6 @@
 #include "barwidget.h"
 #include "textwidget.h"
-#include "textwidget.h"
+#include "tooltip_widget.h"
 #include "trendwidget.h"
 #include "xconnection.h"
 
@@ -21,17 +21,17 @@ const int DEFAULT_MAXVALUE = 1;
 void usage(const char* appname)
 {
     printf("%s -b|-x|-r -source <source> [-w <width>] [-h <height>] [-fg <color>] [-bg <color>] [-repeat <interval>] [-maxvalue <value>] [-tooltip <text>]\n\
-                -b: widget is a bar\n\
-                -x: widget type is text\n\
-                -r: widget type is trend, a value over time displayed as a bar chart\n\
-                -source: an inline scrip, a script file or an executable with full command line. In case of text widget the output is interpreted as text, in case of trend widget it shall return a single number\n\
-                -w: width of the widget in pixels. Default is %i\n\
-                -h: height of the widget in pixels. Default is %i\n\
-                -fg: foreground color in hex value. Text color or bar color. Format is the following: 0xRRGGBB. Default is %x\n\
-                -bg: background color in hex value. Format is the following: 0xRRGGBB. Default is %x\n\
-                -repeat: repeat interval in seconds. Default is %i\n\
-                -maxvalue: used for trend widget and bar widget. The source script or program returns a value and maxvalue determines how high bar shall be drawn relative to th widget height. Default is %i\n\
-                -tooltip: tooltip for the widget.\n", appname, DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_FG, DEFAULT_BG, DEFAULT_REPEAT, DEFAULT_MAXVALUE );
+            -b: widget is a bar\n\
+            -x: widget type is text\n\
+            -r: widget type is trend, a value over time displayed as a bar chart\n\
+            -source: an inline scrip, a script file or an executable with full command line. In case of text widget the output is interpreted as text, in case of trend widget it shall return a single number\n\
+            -w: width of the widget in pixels. Default is %i\n\
+            -h: height of the widget in pixels. Default is %i\n\
+            -fg: foreground color in hex value. Text color or bar color. Format is the following: 0xRRGGBB. Default is %x\n\
+            -bg: background color in hex value. Format is the following: 0xRRGGBB. Default is %x\n\
+            -repeat: repeat interval in seconds. Default is %i\n\
+            -maxvalue: used for trend widget and bar widget. The source script or program returns a value and maxvalue determines how high bar shall be drawn relative to th widget height. Default is %i\n\
+            -tooltip: tooltip for the widget.\n", appname, DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_FG, DEFAULT_BG, DEFAULT_REPEAT, DEFAULT_MAXVALUE );
 
 }
 
@@ -103,11 +103,23 @@ int main(int argc, char** argv)
         exit(1);
     }
     session_data session = connect_display();
-    window_data wd = create_window( session, w, h, bg, fg );
-    
+    window_data wd = create_window( session, w, h, bg, fg, "PRW" );
+    xcb_map_window( wd.session.conn, wd.win );
+    window_data* ttwd = NULL;
+    TextWidget* ttw = NULL;
+    if ( tooltip )
+    {
+        ttwd = (window_data*)malloc(sizeof(window_data));
+        *ttwd = create_window( session, 1, 1, 0x777700, 0x777777, NULL );
+        ttw = (TextWidget*)malloc( sizeof(TextWidget) );
+        *ttw = create_tooltip_widget( tooltip, *ttwd );
+        resize_widget( ttw );
+        xcb_map_window( wd.session.conn, ttwd->win );
+    }
+
     // show
     xcb_flush(wd.session.conn);
-    
+
     DerivedWidget widget;
     void (*draw)(Widget*);// the widget specifig draw function
     if ( strcmp( type, "-b" ) == 0 )
@@ -154,6 +166,10 @@ int main(int argc, char** argv)
         {
             last_update = t;
             draw( &widget.base );
+            if ( tooltip )
+            {
+                draw_textwidget( &ttw->base );
+            }
             xcb_flush(widget.base.wd.session.conn);
             update_needed = 0;
         }
@@ -161,5 +177,7 @@ int main(int argc, char** argv)
     }
     destroy_widget( &widget.base );
     xcb_disconnect( widget.base.wd.session.conn );
+    free( ttw );
+    free( ttwd );
     return 0;
 }

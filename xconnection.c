@@ -1,4 +1,5 @@
 #include "xconnection.h"
+#include "tooltip_widget.h"
 
 #include <xcb/xcb.h>
 
@@ -12,7 +13,7 @@ session_data connect_display()
     return session;
 }
 
-window_data create_window( session_data session, int w, int h, int bg, int fg )
+window_data create_window( session_data session, int w, int h, int bg, int fg, char* wmclass )
 {
     window_data wd;
     wd.session = session;
@@ -53,15 +54,17 @@ window_data create_window( session_data session, int w, int h, int bg, int fg )
                         values );
     wd.width = w;
     wd.height = h;
-    char * name = "PRW";
-    xcb_change_property(wd.session.conn,
-                        XCB_PROP_MODE_APPEND,
-                        wd.win,
-                        XCB_ATOM_WM_CLASS,
-                        XCB_ATOM_STRING,
-                        8,
-                        strlen(name),
-                        name );
-    xcb_map_window(wd.session.conn, wd.win);
+    if ( wmclass )
+    {
+        xcb_change_property(wd.session.conn,
+                            XCB_PROP_MODE_APPEND,
+                            wd.win,
+                            XCB_ATOM_WM_CLASS,
+                            XCB_ATOM_STRING,
+                            8,
+                            strlen(wmclass),
+                            wmclass );
+    }
     return wd;
 } 
+

@@ -1,11 +1,11 @@
 #ifndef TOOLTIP_WIDGET_H
 #define TOOLTIP_WIDGET_H
 
-#include "widget.h"
 #include "xconnection.h"
 #include "textwidget.h"
 
+void resize_widget( TextWidget* tw );
 // create text widget with static output
-TextWidget create_tooltipwidget(   char* text,
+TextWidget create_tooltip_widget(   char* text,
                                    window_data xd );
 #endif

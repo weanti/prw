@@ -20,6 +20,6 @@ typedef struct
 } window_data;
 
 session_data connect_display();
-window_data create_window( session_data session, int w, int h, int bg, int fg );
+window_data create_window( session_data session, int w, int h, int bg, int fg, char* wmclass );
 
 #endif
