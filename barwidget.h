@@ -4,6 +4,7 @@
 #include "widget.h"
 #include "xconnection.h"
 
+// This widget displays a bar.
 typedef struct
 {
     Widget base; 

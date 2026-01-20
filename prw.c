@@ -126,6 +126,7 @@ int main(int argc, char** argv)
     if ( tooltip )
     {
         ttwd = (window_data*)malloc(sizeof(window_data));
+        // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
         *ttwd = create_window( session, 1, 1, 0x777700, 0x777777, NULL );
         ttw = (TextWidget*)malloc( sizeof(TextWidget) );
         *ttw = create_tooltip_widget( tooltip, *ttwd );
