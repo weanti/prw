@@ -119,26 +119,26 @@ int main(int argc, char** argv)
         exit(1);
     }
     session_data session = connect_display();
-    window_data wd = create_window( session, w, h, bg, fg, "PRW" );
-    xcb_map_window( wd.session.conn, wd.win );
-    window_data* ttwd = NULL;
-    TextWidget* ttw = NULL;
+    window_data main_window = create_window( session, w, h, bg, fg, "PRW" );
+    xcb_map_window( main_window.session.conn, main_window.win );
+    window_data* tooltip_window = NULL;
+    TextWidget* tooltip_widget = NULL;
     if ( tooltip )
     {
-        ttwd = (window_data*)malloc(sizeof(window_data));
+        tooltip_window = (window_data*)malloc(sizeof(window_data));
         // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
-        *ttwd = create_window( session, 1, 1, 0x777700, 0x777777, NULL );
-        ttw = (TextWidget*)malloc( sizeof(TextWidget) );
-        *ttw = create_tooltip_widget( tooltip, *ttwd );
-        resize_widget( ttw );
+        *tooltip_window = create_window( session, 1, 1, 0x777700, 0x777777, NULL );
+        tooltip_widget = (TextWidget*)malloc( sizeof(TextWidget) );
+        *tooltip_widget = create_tooltip_widget( tooltip, *tooltip_window );
+        resize_widget( tooltip_widget );
         // set type to NOTIFICATION. Hopefully no window decoration will be created.
-        xcb_intern_atom_reply_t *atom_reply = xcb_intern_atom_reply(ttwd->session.conn, 
-                xcb_intern_atom(ttwd->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE"), "_NET_WM_WINDOW_TYPE"), NULL);
-        xcb_intern_atom_reply_t *tooltip_reply = xcb_intern_atom_reply(ttwd->session.conn, 
-                xcb_intern_atom(ttwd->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE_NITIFICATION"), "_NET_WM_WINDOW_TYPE_NOTIFICATION"), NULL);
+        xcb_intern_atom_reply_t *atom_reply = xcb_intern_atom_reply(tooltip_window->session.conn, 
+                xcb_intern_atom(tooltip_window->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE"), "_NET_WM_WINDOW_TYPE"), NULL);
+        xcb_intern_atom_reply_t *tooltip_reply = xcb_intern_atom_reply(tooltip_window->session.conn, 
+                xcb_intern_atom(tooltip_window->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE_NITIFICATION"), "_NET_WM_WINDOW_TYPE_NOTIFICATION"), NULL);
         if ( atom_reply && tooltip_reply )
         {
-            xcb_change_property( ttwd->session.conn, XCB_PROP_MODE_REPLACE, ttwd->win, atom_reply->atom, XCB_ATOM_ATOM, 32, 1, &tooltip_reply->atom ); 
+            xcb_change_property( tooltip_window->session.conn, XCB_PROP_MODE_REPLACE, tooltip_window->win, atom_reply->atom, XCB_ATOM_ATOM, 32, 1, &tooltip_reply->atom ); 
         } 
         else
         {
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
     }
 
     // show
-    xcb_flush(wd.session.conn);
+    xcb_flush(main_window.session.conn);
 
     DerivedWidget widget;
     void (*draw)(Widget*);// the widget specifig draw function
@@ -155,19 +155,19 @@ int main(int argc, char** argv)
     {
         BarWidget* bw = (BarWidget*)&widget;
         draw = draw_barwidget;
-        *bw = create_barwidget( source, tooltip, maxvalue, wd );
+        *bw = create_barwidget( source, tooltip, maxvalue, main_window );
     }
     else if ( strcmp( type, "-x" ) == 0 )
     {
         TextWidget* tw = (TextWidget*)&widget;
         draw = draw_textwidget;
-        *tw = create_textwidget( source, tooltip, wd );
+        *tw = create_textwidget( source, tooltip, main_window );
     }
     else if ( strcmp( type, "-r" ) == 0 )
     {
         TrendWidget* tw = (TrendWidget*)&widget;
         draw = draw_trendwidget;
-        *tw = create_trendwidget( source, tooltip, maxvalue, wd );
+        *tw = create_trendwidget( source, tooltip, maxvalue, main_window );
     }
     xcb_generic_event_t* event;
     time_t last_update = time(NULL);
@@ -186,14 +186,15 @@ int main(int argc, char** argv)
                     {
                         xcb_enter_notify_event_t* ee = (xcb_enter_notify_event_t*)event;
                         uint16_t new_pos[2] = { ee->event_x, ee->event_y };
-                        xcb_configure_window( ttwd->session.conn, ttwd->win, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, new_pos );
-                        xcb_map_window( ttwd->session.conn, ttwd->win );
+                        // TODO: position seems to be incorrect
+                        xcb_configure_window( tooltip_window->session.conn, tooltip_window->win, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, new_pos );
+                        xcb_map_window( tooltip_window->session.conn, tooltip_window->win );
                     }
                     break;
                 case XCB_LEAVE_NOTIFY:
                     if ( tooltip )
                     {
-                        xcb_unmap_window( ttwd->session.conn, ttwd->win );
+                        xcb_unmap_window( tooltip_window->session.conn, tooltip_window->win );
                     }
                     break;
                 default:
@@ -212,7 +213,7 @@ int main(int argc, char** argv)
             draw( &widget.base );
             if ( tooltip )
             {
-                draw_textwidget( &ttw->base );
+                draw_textwidget( &tooltip_widget->base );
             }
             xcb_flush(widget.base.wd.session.conn);
             update_needed = 0;
@@ -221,7 +222,7 @@ int main(int argc, char** argv)
     }
     destroy_widget( &widget.base );
     xcb_disconnect( widget.base.wd.session.conn );
-    free( ttw );
-    free( ttwd );
+    free( tooltip_widget );
+    free( tooltip_window );
     return 0;
 }
