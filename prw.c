@@ -42,9 +42,9 @@ int parse_args(    int argc, char** argv,
                    int* fg, int* bg,
                    int* repeat,
                    int* maxvalue,
-                   char* source,
-                   char* type,
-                   char* tooltip )
+                   char** source,
+                   char** type,
+                   char** tooltip )
 {
     for( int i = 1; i < argc; i++ )
     {
@@ -74,15 +74,15 @@ int parse_args(    int argc, char** argv,
         }
         else if ( strcmp( argv[i], "-source" ) == 0 && i+1 < argc )
         {
-            source = argv[i+1];
+            *source = argv[i+1];
         }
         else if ( strcmp( argv[i], "-tooltip" ) == 0 && i+1 < argc )
         {
-            tooltip = argv[i+1];
+            *tooltip = argv[i+1];
         }
         else if ( strcmp( argv[i], "-b" ) == 0 || strcmp( argv[i], "-x" ) == 0 || strcmp( argv[i], "-r" ) == 0 ) 
         {
-            type = argv[i];
+            *type = argv[i];
         }
         else if ( strcmp( argv[i], "-h" ) == 0 )
         {
@@ -104,7 +104,7 @@ int main(int argc, char** argv)
     char* source = NULL;
     char* type = NULL;
     char* tooltip = NULL;
-    if ( ! parse_args( argc, argv, &w, &h, &fg, &bg, &repeat, &maxvalue, source, type, tooltip ) )
+    if ( ! parse_args( argc, argv, &w, &h, &fg, &bg, &repeat, &maxvalue, &source, &type, &tooltip ) )
         return 0;
     if ( ! source )
     {
@@ -131,7 +131,19 @@ int main(int argc, char** argv)
         ttw = (TextWidget*)malloc( sizeof(TextWidget) );
         *ttw = create_tooltip_widget( tooltip, *ttwd );
         resize_widget( ttw );
-        xcb_map_window( wd.session.conn, ttwd->win );
+        // set type to NOTIFICATION. Hopefully no window decoration will be created.
+        xcb_intern_atom_reply_t *atom_reply = xcb_intern_atom_reply(ttwd->session.conn, 
+                xcb_intern_atom(ttwd->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE"), "_NET_WM_WINDOW_TYPE"), NULL);
+        xcb_intern_atom_reply_t *tooltip_reply = xcb_intern_atom_reply(ttwd->session.conn, 
+                xcb_intern_atom(ttwd->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE_NITIFICATION"), "_NET_WM_WINDOW_TYPE_NOTIFICATION"), NULL);
+        if ( atom_reply && tooltip_reply )
+        {
+            xcb_change_property( ttwd->session.conn, XCB_PROP_MODE_REPLACE, ttwd->win, atom_reply->atom, XCB_ATOM_ATOM, 32, 1, &tooltip_reply->atom ); 
+        } 
+        else
+        {
+            fprintf( stderr, "Tooltip displaying doesn't seem to be supported. Continuing without tooltip." );
+        }
     }
 
     // show
@@ -168,6 +180,21 @@ int main(int argc, char** argv)
             {
                 case XCB_EXPOSE:
                     update_needed = 1;
+                    break;
+                case XCB_ENTER_NOTIFY:
+                    if ( tooltip )
+                    {
+                        xcb_enter_notify_event_t* ee = (xcb_enter_notify_event_t*)event;
+                        uint16_t new_pos[2] = { ee->event_x, ee->event_y };
+                        xcb_configure_window( ttwd->session.conn, ttwd->win, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, new_pos );
+                        xcb_map_window( ttwd->session.conn, ttwd->win );
+                    }
+                    break;
+                case XCB_LEAVE_NOTIFY:
+                    if ( tooltip )
+                    {
+                        xcb_unmap_window( ttwd->session.conn, ttwd->win );
+                    }
                     break;
                 default:
                     break;

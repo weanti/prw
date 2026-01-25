@@ -15,6 +15,7 @@ typedef struct
     xcb_drawable_t win;
     xcb_gcontext_t bg_ctx;
     xcb_gcontext_t fg_ctx;
+    // TODO: xcb_get_geometry
     int width, height;
     int fg, bg;
 } window_data;
