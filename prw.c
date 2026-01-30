@@ -221,6 +221,7 @@ int main(int argc, char** argv)
         nanosleep( &(struct timespec){.tv_nsec = 500000000 }, NULL );
     }
     destroy_widget( &widget.base );
+    xcb_destroy_window( wd.session.conn, wd.win );
     xcb_disconnect( widget.base.wd.session.conn );
     free( tooltip_widget );
     free( tooltip_window );
