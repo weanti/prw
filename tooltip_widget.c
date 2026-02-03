@@ -20,16 +20,14 @@ void resize_widget( TextWidget* tw )
     tw->y = 1;
 }
 
-TextWidget create_tooltip_widget(   char* text,
-                                       window_data* parent )
+TextWidget create_tooltip_widget(  char* text )
 {
     TextWidget tw;
     Source s = create_static_source( text );
-    Widget w = { .window = parent, .source = s };
+    Widget w = { .window = NULL, .source = s };
     tw.base = w;
     tw.x = 0;
     tw.y = 0;
-    create_cairo_surface( &tw );
 
     char* eol = strpbrk( tw.base.source.source, "\n\r");
     if ( eol )
@@ -40,3 +38,8 @@ TextWidget create_tooltip_widget(   char* text,
     return tw;
 }
 
+void assign_tooltip_widget( TextWidget* tw, window_data* parent )
+{
+    assign_widget( &tw->base, parent );
+    create_cairo_surface( tw );
+}

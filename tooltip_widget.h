@@ -6,6 +6,6 @@
 
 void resize_widget( TextWidget* tw );
 // create text widget with static output
-TextWidget create_tooltip_widget(   char* text,
-                                   window_data* parent );
+TextWidget create_tooltip_widget(  char* text );
+void assign_tooltip_widget( TextWidget* tw, window_data* parent );
 #endif

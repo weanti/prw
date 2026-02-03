@@ -129,7 +129,8 @@ int main(int argc, char** argv)
         // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
         *tooltip_window = create_window( session, 1, 1, 0x777700, 0x777777, NULL );
         tooltip_widget = (TextWidget*)malloc( sizeof(TextWidget) );
-        *tooltip_widget = create_tooltip_widget( tooltip, tooltip_window );
+        *tooltip_widget = create_tooltip_widget( tooltip );
+        assign_tooltip_widget( tooltip_widget, tooltip_window );
         resize_widget( tooltip_widget );
         // set type to NOTIFICATION. Hopefully no window decoration will be created.
         xcb_intern_atom_reply_t *atom_reply = xcb_intern_atom_reply(tooltip_window->session.conn, 
