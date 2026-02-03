@@ -6,7 +6,7 @@
 
 typedef struct 
 {
-    window_data wd;
+    window_data* window;
     Source source;
     char* tooltip;
 } Widget;
@@ -18,8 +18,9 @@ typedef struct
 } DerivedWidget;
 
 Widget create_widget(   char* program,
-                        char* tooltip,
-                        window_data wd );
+                        char* tooltip );
+// assigned widget to the parent window
+void assign_widget( Widget* w, window_data* parent );
 void draw_widget( Widget* );
 void destroy_widget( Widget* );
 

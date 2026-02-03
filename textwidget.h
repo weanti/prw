@@ -18,8 +18,9 @@ typedef struct
 
 // create text widget with dynamic output, the source of the text is the output of the given program
 TextWidget create_textwidget(   char* program,
-                                char* tooltip,
-                                window_data xd );
+                                char* tooltip );
+// assign widget to the parent window and perform textwidget specific initializations 
+void assign_textwidget( TextWidget* tw, window_data* parent );
 
 void measure_size( char* text, char* font, int* width, int* height, PangoLayout* layout );
 void create_cairo_surface( TextWidget* tw );

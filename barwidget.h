@@ -13,8 +13,9 @@ typedef struct
 
 BarWidget create_barwidget( char* program,
                             char* tooltip,
-                            double maxvalue,
-                            window_data wd );
+                            double maxvalue );
+// assign widget to the parent window and perform barwidget specific initializations 
+void assign_barwidget( BarWidget* bw, window_data* parent );
 void draw_barwidget( Widget* );
 void destroy_barwidget( Widget* );
 

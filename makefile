@@ -1,6 +1,6 @@
 FLAGS!= pkg-config --cflags xcb pango cairo pangocairo
 # due to the cast of structs to "derived" class it is probably a good idea to disable optimizations, otherwise struct members may be reaordered and mess up the expected memory addresses. Dunno, just guessing
-CFLAGS+=-O0 ${FLAGS}
+CFLAGS+=-O0 ${FLAGS} -g
 LDFLAGS!= pkg-config --libs xcb pango cairo pangocairo
 LDFLAGS+=-lm
 SOURCES=prw.c barwidget.c trendwidget.c textwidget.c tooltip_widget.c widget.c source.c xconnection.c

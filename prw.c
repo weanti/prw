@@ -129,7 +129,7 @@ int main(int argc, char** argv)
         // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
         *tooltip_window = create_window( session, 1, 1, 0x777700, 0x777777, NULL );
         tooltip_widget = (TextWidget*)malloc( sizeof(TextWidget) );
-        *tooltip_widget = create_tooltip_widget( tooltip, *tooltip_window );
+        *tooltip_widget = create_tooltip_widget( tooltip, tooltip_window );
         resize_widget( tooltip_widget );
         // set type to NOTIFICATION. Hopefully no window decoration will be created.
         xcb_intern_atom_reply_t *atom_reply = xcb_intern_atom_reply(tooltip_window->session.conn, 
@@ -155,26 +155,29 @@ int main(int argc, char** argv)
     {
         BarWidget* bw = (BarWidget*)&widget;
         draw = draw_barwidget;
-        *bw = create_barwidget( source, tooltip, maxvalue, main_window );
+        *bw = create_barwidget( source, tooltip, maxvalue );
+        assign_barwidget( bw, &main_window );
     }
     else if ( strcmp( type, "-x" ) == 0 )
     {
         TextWidget* tw = (TextWidget*)&widget;
         draw = draw_textwidget;
-        *tw = create_textwidget( source, tooltip, main_window );
+        *tw = create_textwidget( source, tooltip );
+        assign_textwidget( tw, &main_window );
     }
     else if ( strcmp( type, "-r" ) == 0 )
     {
         TrendWidget* tw = (TrendWidget*)&widget;
         draw = draw_trendwidget;
-        *tw = create_trendwidget( source, tooltip, maxvalue, main_window );
+        *tw = create_trendwidget( source, tooltip, maxvalue );
+        assign_trendwidget( tw,  &main_window );
     }
     xcb_generic_event_t* event;
     time_t last_update = time(NULL);
     int update_needed = 0;
     while( 1 ) 
     {
-        if ( (event = xcb_poll_for_event(widget.base.wd.session.conn) ) )
+        if ( (event = xcb_poll_for_event(widget.base.window->session.conn) ) )
         {
             switch( event->response_type & ~0x80 )
             {
@@ -215,7 +218,7 @@ int main(int argc, char** argv)
             {
                 draw_textwidget( &tooltip_widget->base );
             }
-            xcb_flush(widget.base.wd.session.conn);
+            xcb_flush(widget.base.window->session.conn);
             update_needed = 0;
         }
         nanosleep( &(struct timespec){.tv_nsec = 500000000 }, NULL );

@@ -3,24 +3,28 @@
 #include <stdlib.h>
 
 Widget create_widget(   char* program,
-                        char* tooltip,
-                        window_data wd )
+                        char* tooltip )
 {
     Source s = create_dynamic_source( program );
-    Widget widget = { .wd = wd, .source = s, .tooltip = tooltip };
+    Widget widget = { .window = NULL, .source = s, .tooltip = tooltip };
     return widget;
+}
+
+void assign_widget( Widget* w, window_data* parent )
+{
+    w->window = parent;
 }
 
 void draw_widget( Widget* widget )
 {
     // draws background box
-    xcb_clear_area(widget->wd.session.conn,
+    xcb_clear_area(widget->window->session.conn,
             0, 
-            widget->wd.win, 
+            widget->window->win, 
             0, 
             0, 
-            widget->wd.session.screen->width_in_pixels, 
-            widget->wd.session.screen->height_in_pixels );
+            widget->window->session.screen->width_in_pixels, 
+            widget->window->session.screen->height_in_pixels );
 }
 
 void destroy_widget( Widget* widget )

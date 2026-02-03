@@ -20,15 +20,21 @@ void measure_size( char* text, char* font, int* width, int* height, PangoLayout*
 }
 
 TextWidget create_textwidget(   char* program,
-                                char* tooltip,
-                                window_data wd )
+                                char* tooltip )
 {
     TextWidget tw;
-    tw.base = create_widget( program, tooltip, wd );
-    xcb_font_t font_id = xcb_generate_id( tw.base.wd.session.conn );
-    create_cairo_surface( &tw );
+    tw.base = create_widget( program, tooltip );
+   
+    tw.x = 0;
+    tw.y = 0;
+    return tw;
+}
 
-    char* text = get( tw.base.source );
+void assign_textwidget( TextWidget* tw, window_data* parent )
+{
+    assign_widget( &tw->base, parent );
+    create_cairo_surface( tw );
+    char* text = get( tw->base.source );
     char* eol = strpbrk( text, "\n\r");
     if ( eol )
     {
@@ -36,36 +42,35 @@ TextWidget create_textwidget(   char* program,
     }
     int width, height;
     // TODO: use a font priority list
-    measure_size( text, "Sans 8",  &width, &height, tw.layout );
-    geometry geom = get_geometry( wd );
+    measure_size( text, "Sans 8",  &width, &height, tw->layout );
+    geometry geom = get_geometry( *parent );
    
-    tw.x = (geom.width - width)/2;
-    tw.y = (geom.height - height)/2;
-    return tw;
+    tw->x = (geom.width - width)/2;
+    tw->y = (geom.height - height)/2;
 }
 
 void create_cairo_surface( TextWidget* tw )
 {
     xcb_visualtype_t* vt = NULL;
-    window_data wd= tw->base.wd;
-    xcb_depth_iterator_t depth_iter = xcb_screen_allowed_depths_iterator( wd.session.screen );
+    window_data* wd = tw->base.window;
+    xcb_depth_iterator_t depth_iter = xcb_screen_allowed_depths_iterator( wd->session.screen );
     for ( ; !vt && depth_iter.rem; xcb_depth_next(&depth_iter) )
     {
         xcb_visualtype_iterator_t visual_iter = xcb_depth_visuals_iterator( depth_iter.data );
         for ( ; !vt && visual_iter.rem; xcb_visualtype_next( &visual_iter ) )
         {
-            if ( wd.session.screen->root_visual == visual_iter.data->visual_id )
+            if ( wd->session.screen->root_visual == visual_iter.data->visual_id )
             {
                 vt = visual_iter.data;
             }
         }
     }
-    geometry geom = get_geometry( wd );
+    geometry geom = get_geometry( *wd );
     /* --- Cairo surface --- */
     tw->surface =
         cairo_xcb_surface_create(
-            wd.session.conn,
-            wd.win,
+            wd->session.conn,
+            wd->win,
             vt,
             geom.width, geom.height
         );
@@ -81,9 +86,9 @@ void draw_textwidget( Widget* widget )
     char* text = get( widget->source );
     draw_widget( widget );
     /* --- Draw text --- */
-    int r = (widget->wd.fg >> 16) & 0xFF;
-    int g = (widget->wd.fg >> 8) & 0xFF;
-    int b = widget->wd.fg & 0xFF;
+    int r = (widget->window->fg >> 16) & 0xFF;
+    int g = (widget->window->fg >> 8) & 0xFF;
+    int b = widget->window->fg & 0xFF;
     cairo_set_source_rgb(textwidget->cr, r, g, b);
     cairo_move_to(textwidget->cr, textwidget->x, textwidget->y);
     pango_cairo_show_layout(textwidget->cr, textwidget->layout);
