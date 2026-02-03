@@ -119,7 +119,7 @@ int main(int argc, char** argv)
         exit(1);
     }
     session_data session = connect_display();
-    window_data main_window = create_window( session, w, h, bg, fg, "PRW" );
+    window_data main_window = create_window( session, 0, 0, w, h, bg, fg, "PRW" );
     xcb_map_window( main_window.session.conn, main_window.win );
     window_data* tooltip_window = NULL;
     TextWidget* tooltip_widget = NULL;
@@ -127,7 +127,7 @@ int main(int argc, char** argv)
     {
         tooltip_window = (window_data*)malloc(sizeof(window_data));
         // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
-        *tooltip_window = create_window( session, 1, 1, 0x777700, 0x777777, NULL );
+        *tooltip_window = create_window( session, 0, 0, 1, 1, 0x777700, 0x777777, NULL );
         tooltip_widget = (TextWidget*)malloc( sizeof(TextWidget) );
         *tooltip_widget = create_tooltip_widget( tooltip );
         assign_tooltip_widget( tooltip_widget, tooltip_window );

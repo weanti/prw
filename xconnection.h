@@ -28,7 +28,7 @@ typedef struct
 } window_data;
 
 session_data connect_display();
-window_data create_window( session_data session, int w, int h, int bg, int fg, char* wmclass );
+window_data create_window( session_data session, int x, int y, int w, int h, int bg, int fg, char* wmclass );
 geometry get_geometry( window_data );
 
 #endif

@@ -13,7 +13,7 @@ session_data connect_display()
     return session;
 }
 
-window_data create_window( session_data session, int w, int h, int bg, int fg, char* wmclass )
+window_data create_window( session_data session, int x, int y, int w, int h, int bg, int fg, char* wmclass )
 {
     window_data wd;
     wd.session = session;
@@ -43,8 +43,8 @@ window_data create_window( session_data session, int w, int h, int bg, int fg, c
                         XCB_COPY_FROM_PARENT,
                         wd.win,
                         wd.session.screen->root,
-                        0,
-                        0,
+                        x,
+                        y,
                         w,
                         h,
                         1,
