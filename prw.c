@@ -136,7 +136,7 @@ int main(int argc, char** argv)
         xcb_intern_atom_reply_t *atom_reply = xcb_intern_atom_reply(tooltip_window->session.conn, 
                 xcb_intern_atom(tooltip_window->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE"), "_NET_WM_WINDOW_TYPE"), NULL);
         xcb_intern_atom_reply_t *tooltip_reply = xcb_intern_atom_reply(tooltip_window->session.conn, 
-                xcb_intern_atom(tooltip_window->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE_NITIFICATION"), "_NET_WM_WINDOW_TYPE_NOTIFICATION"), NULL);
+                xcb_intern_atom(tooltip_window->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE_NOTIFICATION"), "_NET_WM_WINDOW_TYPE_NOTIFICATION"), NULL);
         if ( atom_reply && tooltip_reply )
         {
             xcb_change_property( tooltip_window->session.conn, XCB_PROP_MODE_REPLACE, tooltip_window->win, atom_reply->atom, XCB_ATOM_ATOM, 32, 1, &tooltip_reply->atom ); 
