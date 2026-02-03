@@ -1,8 +1,8 @@
 #include "xconnection.h"
-#include "tooltip_widget.h"
 
 #include <xcb/xcb.h>
 
+#include <stdlib.h>
 #include <string.h>
 
 session_data connect_display()
@@ -68,3 +68,12 @@ window_data create_window( session_data session, int w, int h, int bg, int fg, c
     return wd;
 } 
 
+geometry get_geometry( window_data wd )
+{
+    xcb_get_geometry_cookie_t cookie = xcb_get_geometry( wd.session.conn, wd.win );
+    xcb_get_geometry_reply_t* reply = xcb_get_geometry_reply( wd.session.conn, cookie, NULL );
+    geometry g = { .x = reply->x, .y = reply->y, .width = reply->width, .height = reply->height };
+    free(reply);
+
+    return g;
+}
