@@ -15,11 +15,9 @@ void resize_widget( TextWidget* tw )
     uint32_t new_size[2] = { width+2, height+2 };
     cairo_xcb_surface_set_size( tw->surface, width+2, height+2 );
     xcb_configure_window( tw->base.wd.session.conn, tw->base.wd.win, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, new_size );
-    // store new size value in the widget too
-    tw->base.wd.width = new_size[0];
-    tw->base.wd.height = new_size[1];
-    tw->x = (tw->base.wd.width - width)/2;
-    tw->y = (tw->base.wd.height - height)/2;
+    // there is a 1 px adding on each side
+    tw->x = 1;
+    tw->y = 1;
 }
 
 TextWidget create_tooltip_widget(   char* text,
@@ -29,6 +27,8 @@ TextWidget create_tooltip_widget(   char* text,
     Source s = create_static_source( text );
     Widget w = { .wd = wd, .source = s };
     tw.base = w;
+    tw.x = 0;
+    tw.y = 0;
     xcb_font_t font_id = xcb_generate_id( tw.base.wd.session.conn );
     create_cairo_surface( &tw );
 
@@ -37,12 +37,7 @@ TextWidget create_tooltip_widget(   char* text,
     {
         *eol = '\0';
     }
-    int width, height;
-    // TODO: use a font priority list
-    measure_size( text, "Sans 8",  &width, &height, tw.layout );
    
-    tw.x = (wd.width - width)/2;
-    tw.y = (wd.height - height)/2;
     return tw;
 }
 

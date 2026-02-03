@@ -52,8 +52,6 @@ window_data create_window( session_data session, int w, int h, int bg, int fg, c
                         wd.session.screen->root_visual,
                         mask,
                         values );
-    wd.width = w;
-    wd.height = h;
     if ( wmclass )
     {
         xcb_change_property(wd.session.conn,

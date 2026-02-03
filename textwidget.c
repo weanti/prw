@@ -37,9 +37,10 @@ TextWidget create_textwidget(   char* program,
     int width, height;
     // TODO: use a font priority list
     measure_size( text, "Sans 8",  &width, &height, tw.layout );
+    geometry geom = get_geometry( wd );
    
-    tw.x = (wd.width - width)/2;
-    tw.y = (wd.height - height)/2;
+    tw.x = (geom.width - width)/2;
+    tw.y = (geom.height - height)/2;
     return tw;
 }
 
@@ -59,13 +60,14 @@ void create_cairo_surface( TextWidget* tw )
             }
         }
     }
+    geometry geom = get_geometry( wd );
     /* --- Cairo surface --- */
     tw->surface =
         cairo_xcb_surface_create(
             wd.session.conn,
             wd.win,
             vt,
-            wd.width, wd.height
+            geom.width, geom.height
         );
     tw->cr = cairo_create(tw->surface);
 
