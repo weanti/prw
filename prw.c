@@ -125,26 +125,8 @@ int main(int argc, char** argv)
     TextWidget* tooltip_widget = NULL;
     if ( tooltip )
     {
-        tooltip_window = (window_data*)malloc(sizeof(window_data));
-        // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
-        *tooltip_window = create_window( session, 0, 0, 1, 1, 0x777700, 0x777777, NULL );
         tooltip_widget = (TextWidget*)malloc( sizeof(TextWidget) );
         *tooltip_widget = create_tooltip_widget( tooltip );
-        assign_tooltip_widget( tooltip_widget, tooltip_window );
-        resize_widget( tooltip_widget );
-        // set type to NOTIFICATION. Hopefully no window decoration will be created.
-        xcb_intern_atom_reply_t *atom_reply = xcb_intern_atom_reply(tooltip_window->session.conn, 
-                xcb_intern_atom(tooltip_window->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE"), "_NET_WM_WINDOW_TYPE"), NULL);
-        xcb_intern_atom_reply_t *tooltip_reply = xcb_intern_atom_reply(tooltip_window->session.conn, 
-                xcb_intern_atom(tooltip_window->session.conn, 0, strlen("_NET_WM_WINDOW_TYPE_NOTIFICATION"), "_NET_WM_WINDOW_TYPE_NOTIFICATION"), NULL);
-        if ( atom_reply && tooltip_reply )
-        {
-            xcb_change_property( tooltip_window->session.conn, XCB_PROP_MODE_REPLACE, tooltip_window->win, atom_reply->atom, XCB_ATOM_ATOM, 32, 1, &tooltip_reply->atom ); 
-        } 
-        else
-        {
-            fprintf( stderr, "Tooltip displaying doesn't seem to be supported. Continuing without tooltip." );
-        }
     }
 
     // show
@@ -186,19 +168,30 @@ int main(int argc, char** argv)
                     update_needed = 1;
                     break;
                 case XCB_ENTER_NOTIFY:
-                    if ( tooltip )
+                    if ( tooltip && ! tooltip_window )
                     {
                         xcb_enter_notify_event_t* ee = (xcb_enter_notify_event_t*)event;
                         uint16_t new_pos[2] = { ee->event_x, ee->event_y };
-                        // TODO: position seems to be incorrect
-                        xcb_configure_window( tooltip_window->session.conn, tooltip_window->win, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, new_pos );
+                        tooltip_window = (window_data*)malloc(sizeof(window_data));
+                        // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
+                        *tooltip_window = create_window( session, ee->root_x, ee->root_y, 1, 1, 0x777700, 0x777777, NULL );
+                        // no decorations
+                        uint32_t redirect[1] = { 1};
+                        xcb_change_window_attributes( tooltip_window->session.conn, tooltip_window->win, XCB_CW_OVERRIDE_REDIRECT,  redirect );
+                        printf("event %d %d, root %d %d\n", ee->event_x, ee->event_y, ee->root_x, ee->root_y);
+                        assign_tooltip_widget( tooltip_widget, tooltip_window );
+                        resize_widget( tooltip_widget );
                         xcb_map_window( tooltip_window->session.conn, tooltip_window->win );
                     }
                     break;
                 case XCB_LEAVE_NOTIFY:
-                    if ( tooltip )
+                    if ( tooltip_window )
                     {
+                        puts("leave...");
                         xcb_unmap_window( tooltip_window->session.conn, tooltip_window->win );
+                        xcb_destroy_window( tooltip_window->session.conn, tooltip_window->win );
+                        free( tooltip_window );
+                        tooltip_window = NULL;
                     }
                     break;
                 default:
@@ -215,7 +208,7 @@ int main(int argc, char** argv)
         {
             last_update = t;
             draw( &widget.base );
-            if ( tooltip )
+            if ( tooltip_window )
             {
                 draw_textwidget( &tooltip_widget->base );
             }
