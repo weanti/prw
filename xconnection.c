@@ -68,10 +68,22 @@ window_data create_window( session_data session, int x, int y, int w, int h, int
 
 geometry get_geometry( window_data wd )
 {
-    xcb_get_geometry_cookie_t cookie = xcb_get_geometry( wd.session.conn, wd.win );
-    xcb_get_geometry_reply_t* reply = xcb_get_geometry_reply( wd.session.conn, cookie, NULL );
-    geometry g = { .x = reply->x, .y = reply->y, .width = reply->width, .height = reply->height };
-    free(reply);
+    xcb_get_geometry_cookie_t geom_cookie = xcb_get_geometry( wd.session.conn, wd.win );
+    xcb_get_geometry_reply_t* geom_reply = xcb_get_geometry_reply( wd.session.conn, geom_cookie, NULL );
+    xcb_translate_coordinates_cookie_t translate_cookie = xcb_translate_coordinates( wd.session.conn, wd.win, wd.session.screen->root, 0, 0 );
+    xcb_translate_coordinates_reply_t* translate_reply = xcb_translate_coordinates_reply( wd.session.conn, translate_cookie, NULL );
+
+    geometry g = { .x = translate_reply->dst_x, .y = translate_reply->dst_y, .width = geom_reply->width, .height = geom_reply->height };
+    free(geom_reply);
+    free(translate_reply);
 
     return g;
 }
+
+int is_mapped( window_data wd )
+{
+    xcb_get_window_attributes_cookie_t cookie = xcb_get_window_attributes( wd.session.conn, wd.win );
+    xcb_get_window_attributes_reply_t* attributes = xcb_get_window_attributes_reply( wd.session.conn, cookie, NULL );
+    return (attributes->map_state != XCB_MAP_STATE_UNMAPPED);
+}
+

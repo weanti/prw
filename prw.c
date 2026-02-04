@@ -127,6 +127,14 @@ int main(int argc, char** argv)
     {
         tooltip_widget = (TextWidget*)malloc( sizeof(TextWidget) );
         *tooltip_widget = create_tooltip_widget( tooltip );
+        tooltip_window = (window_data*)malloc(sizeof(window_data));
+        // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
+        *tooltip_window = create_window( session, 0, 0, 1, 1, 0x777700, 0x777777, NULL );
+        // no decorations
+        uint32_t redirect[1] = { 1};
+        xcb_change_window_attributes( tooltip_window->session.conn, tooltip_window->win, XCB_CW_OVERRIDE_REDIRECT,  redirect );
+        assign_tooltip_widget( tooltip_widget, tooltip_window );
+        resize_widget( tooltip_widget );
     }
 
     // show
@@ -168,30 +176,21 @@ int main(int argc, char** argv)
                     update_needed = 1;
                     break;
                 case XCB_ENTER_NOTIFY:
-                    if ( tooltip && ! tooltip_window )
+                    if ( tooltip_window && ! is_mapped( *tooltip_window ) )
                     {
                         xcb_enter_notify_event_t* ee = (xcb_enter_notify_event_t*)event;
-                        uint16_t new_pos[2] = { ee->event_x, ee->event_y };
-                        tooltip_window = (window_data*)malloc(sizeof(window_data));
-                        // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
-                        *tooltip_window = create_window( session, ee->root_x, ee->root_y, 1, 1, 0x777700, 0x777777, NULL );
-                        // no decorations
-                        uint32_t redirect[1] = { 1};
-                        xcb_change_window_attributes( tooltip_window->session.conn, tooltip_window->win, XCB_CW_OVERRIDE_REDIRECT,  redirect );
-                        printf("event %d %d, root %d %d\n", ee->event_x, ee->event_y, ee->root_x, ee->root_y);
-                        assign_tooltip_widget( tooltip_widget, tooltip_window );
-                        resize_widget( tooltip_widget );
+                        uint32_t new_pos[2] = { ee->root_x, ee->root_y };
+                        xcb_configure_window( tooltip_window->session.conn, tooltip_window->win, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, new_pos );
                         xcb_map_window( tooltip_window->session.conn, tooltip_window->win );
+                        update_needed = 1;
                     }
                     break;
                 case XCB_LEAVE_NOTIFY:
-                    if ( tooltip_window )
+                    if ( tooltip_window && is_mapped( *tooltip_window ) )
                     {
-                        puts("leave...");
+                        xcb_enter_notify_event_t* ee = (xcb_enter_notify_event_t*)event;
                         xcb_unmap_window( tooltip_window->session.conn, tooltip_window->win );
-                        xcb_destroy_window( tooltip_window->session.conn, tooltip_window->win );
-                        free( tooltip_window );
-                        tooltip_window = NULL;
+                        update_needed = 1;
                     }
                     break;
                 default:
@@ -208,17 +207,18 @@ int main(int argc, char** argv)
         {
             last_update = t;
             draw( &widget.base );
-            if ( tooltip_window )
+            if ( tooltip_window && is_mapped( *tooltip_window ) )
             {
                 draw_textwidget( &tooltip_widget->base );
             }
-            xcb_flush(widget.base.window->session.conn);
+            xcb_flush(widget.base.window->session.conn );
             update_needed = 0;
         }
         nanosleep( &(struct timespec){.tv_nsec = 500000000 }, NULL );
     }
     destroy_widget( &widget.base );
     xcb_destroy_window( main_window.session.conn, main_window.win );
+    xcb_destroy_window( tooltip_window->session.conn, tooltip_window->win );
     xcb_disconnect( main_window.session.conn );
     free( tooltip_widget );
     free( tooltip_window );
