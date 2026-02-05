@@ -179,7 +179,9 @@ int main(int argc, char** argv)
                     if ( tooltip_window && ! is_mapped( *tooltip_window ) )
                     {
                         xcb_enter_notify_event_t* ee = (xcb_enter_notify_event_t*)event;
-                        uint32_t new_pos[2] = { ee->root_x, ee->root_y };
+                        geometry geom = get_geometry( *tooltip_window );
+                        // display the tooltip above the mouse pointer, not directly under it
+                        uint32_t new_pos[2] = { ee->root_x, ee->root_y-geom.height };
                         xcb_configure_window( tooltip_window->session.conn, tooltip_window->win, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, new_pos );
                         xcb_map_window( tooltip_window->session.conn, tooltip_window->win );
                         update_needed = 1;
