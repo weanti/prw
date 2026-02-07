@@ -100,5 +100,9 @@ void draw_textwidget( Widget* widget )
 void destroy_textwidget( Widget* widget )
 {
     destroy_widget( widget );
+    TextWidget* tw = (TextWidget*)widget;
+    g_object_unref( tw->layout );
+    cairo_destroy( tw->cr );
+    cairo_surface_destroy( tw->surface );
 }
 
