@@ -5,17 +5,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-session_data connect_display()
+Session connect_display()
 {
-    session_data session;
+    Session session;
     session.conn = xcb_connect( NULL, NULL );
     session.screen = xcb_setup_roots_iterator( xcb_get_setup( session.conn ) ).data;
     return session;
 }
 
-window_data create_window( session_data session, int x, int y, int w, int h, int bg, int fg, char* wmclass )
+Window create_window( Session session, int x, int y, int w, int h, int bg, int fg, char* wmclass )
 {
-    window_data wd;
+    Window wd;
     wd.session = session;
     // create background color context
     wd.bg_ctx = xcb_generate_id(wd.session.conn);
@@ -66,21 +66,21 @@ window_data create_window( session_data session, int x, int y, int w, int h, int
     return wd;
 } 
 
-geometry get_geometry( window_data wd )
+Geometry get_geometry( Window wd )
 {
     xcb_get_geometry_cookie_t geom_cookie = xcb_get_geometry( wd.session.conn, wd.win );
     xcb_get_geometry_reply_t* geom_reply = xcb_get_geometry_reply( wd.session.conn, geom_cookie, NULL );
     xcb_translate_coordinates_cookie_t translate_cookie = xcb_translate_coordinates( wd.session.conn, wd.win, wd.session.screen->root, 0, 0 );
     xcb_translate_coordinates_reply_t* translate_reply = xcb_translate_coordinates_reply( wd.session.conn, translate_cookie, NULL );
 
-    geometry g = { .x = translate_reply->dst_x, .y = translate_reply->dst_y, .width = geom_reply->width, .height = geom_reply->height };
+    Geometry g = { .x = translate_reply->dst_x, .y = translate_reply->dst_y, .width = geom_reply->width, .height = geom_reply->height };
     free(geom_reply);
     free(translate_reply);
 
     return g;
 }
 
-int is_mapped( window_data wd )
+int is_mapped( Window wd )
 {
     xcb_get_window_attributes_cookie_t cookie = xcb_get_window_attributes( wd.session.conn, wd.win );
     xcb_get_window_attributes_reply_t* attributes = xcb_get_window_attributes_reply( wd.session.conn, cookie, NULL );

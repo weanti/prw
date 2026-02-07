@@ -118,16 +118,16 @@ int main(int argc, char** argv)
         usage(argv[0]);
         exit(1);
     }
-    session_data session = connect_display();
-    window_data main_window = create_window( session, 0, 0, w, h, bg, fg, "PRW" );
+    Session session = connect_display();
+    Window main_window = create_window( session, 0, 0, w, h, bg, fg, "PRW" );
     xcb_map_window( main_window.session.conn, main_window.win );
-    window_data* tooltip_window = NULL;
+    Window* tooltip_window = NULL;
     TextWidget* tooltip_widget = NULL;
     if ( tooltip )
     {
         tooltip_widget = (TextWidget*)malloc( sizeof(TextWidget) );
         *tooltip_widget = create_tooltip_widget( tooltip );
-        tooltip_window = (window_data*)malloc(sizeof(window_data));
+        tooltip_window = (Window*)malloc(sizeof(Window));
         // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
         *tooltip_window = create_window( session, 0, 0, 1, 1, 0x777700, 0x777777, NULL );
         // no decorations
@@ -179,7 +179,7 @@ int main(int argc, char** argv)
                     if ( tooltip_window && ! is_mapped( *tooltip_window ) )
                     {
                         xcb_enter_notify_event_t* ee = (xcb_enter_notify_event_t*)event;
-                        geometry geom = get_geometry( *tooltip_window );
+                        Geometry geom = get_geometry( *tooltip_window );
                         // display the tooltip above the mouse pointer, not directly under it
                         uint32_t new_pos[2] = { ee->root_x, ee->root_y-geom.height };
                         xcb_configure_window( tooltip_window->session.conn, tooltip_window->win, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, new_pos );

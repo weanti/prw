@@ -12,7 +12,7 @@ BarWidget create_barwidget( char* program,
     return bw;
 }
 
-void assign_barwidget( BarWidget* bw, window_data* parent )
+void assign_barwidget( BarWidget* bw, Window* parent )
 {
     assign_widget( &bw->base, parent );
 }
@@ -22,7 +22,7 @@ void draw_barwidget( Widget* widget )
     draw_widget( widget );
     BarWidget* barwidget = (BarWidget*)widget; 
     double value = atof( get( widget->source ) );
-    geometry geom = get_geometry( *(widget->window) );
+    Geometry geom = get_geometry( *(widget->window) );
     value = fmin( geom.height, value / barwidget->maxvalue * geom.height ); 
     xcb_rectangle_t rect[] = { 0, geom.height-value, (uint16_t)geom.width, value };
     xcb_poly_fill_rectangle(    widget->window->session.conn,

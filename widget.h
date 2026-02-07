@@ -6,9 +6,9 @@
 
 typedef struct 
 {
-    window_data* window;
-    Source source;
-    char* tooltip;
+    Window* window;// parent, container object
+    Source source;// input, the output of source is to be displayed in the widget
+    char* tooltip;// tooltip text, optional
 } Widget;
 
 typedef struct
@@ -20,7 +20,7 @@ typedef struct
 Widget create_widget(   char* program,
                         char* tooltip );
 // assigned widget to the parent window
-void assign_widget( Widget* w, window_data* parent );
+void assign_widget( Widget* w, Window* parent );
 void draw_widget( Widget* );
 void destroy_widget( Widget* );
 

@@ -14,10 +14,10 @@ TrendWidget create_trendwidget( char* program,
     return tw;
 }
 
-void assign_trendwidget( TrendWidget* tw, window_data* parent )
+void assign_trendwidget( TrendWidget* tw, Window* parent )
 {
     assign_widget( &tw->base, parent );
-    geometry geom = get_geometry( *parent );
+    Geometry geom = get_geometry( *parent );
     double* values = (double*)malloc( geom.width*sizeof(double) );
     tw->values = values;
 }
@@ -25,7 +25,7 @@ void assign_trendwidget( TrendWidget* tw, window_data* parent )
 void draw_trendwidget( Widget* widget )
 {
     TrendWidget* tw = ((TrendWidget*)widget);
-    geometry geom = get_geometry( *(widget->window) );
+    Geometry geom = get_geometry( *(widget->window) );
     for ( int i = 0; i < geom.width-1; i++ )
     {
         tw->values[i] = tw->values[i+1];

@@ -15,7 +15,7 @@ BarWidget create_barwidget( char* program,
                             char* tooltip,
                             double maxvalue );
 // assign widget to the parent window and perform barwidget specific initializations 
-void assign_barwidget( BarWidget* bw, window_data* parent );
+void assign_barwidget( BarWidget* bw, Window* parent );
 void draw_barwidget( Widget* );
 void destroy_barwidget( Widget* );
 

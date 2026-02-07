@@ -10,7 +10,7 @@ Widget create_widget(   char* program,
     return widget;
 }
 
-void assign_widget( Widget* w, window_data* parent )
+void assign_widget( Widget* w, Window* parent )
 {
     w->window = parent;
 }

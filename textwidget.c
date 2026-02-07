@@ -30,7 +30,7 @@ TextWidget create_textwidget(   char* program,
     return tw;
 }
 
-void assign_textwidget( TextWidget* tw, window_data* parent )
+void assign_textwidget( TextWidget* tw, Window* parent )
 {
     assign_widget( &tw->base, parent );
     create_cairo_surface( tw );
@@ -43,7 +43,7 @@ void assign_textwidget( TextWidget* tw, window_data* parent )
     int width, height;
     // TODO: use a font priority list
     measure_size( text, "Sans 8",  &width, &height, tw->layout );
-    geometry geom = get_geometry( *parent );
+    Geometry geom = get_geometry( *parent );
    
     tw->x = (geom.width - width)/2;
     tw->y = (geom.height - height)/2;
@@ -52,7 +52,7 @@ void assign_textwidget( TextWidget* tw, window_data* parent )
 void create_cairo_surface( TextWidget* tw )
 {
     xcb_visualtype_t* vt = NULL;
-    window_data* wd = tw->base.window;
+    Window* wd = tw->base.window;
     xcb_depth_iterator_t depth_iter = xcb_screen_allowed_depths_iterator( wd->session.screen );
     for ( ; !vt && depth_iter.rem; xcb_depth_next(&depth_iter) )
     {
@@ -65,7 +65,7 @@ void create_cairo_surface( TextWidget* tw )
             }
         }
     }
-    geometry geom = get_geometry( *wd );
+    Geometry geom = get_geometry( *wd );
     /* --- Cairo surface --- */
     tw->surface =
         cairo_xcb_surface_create(

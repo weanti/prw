@@ -10,7 +10,7 @@
 typedef struct 
 {
     Widget base;
-    int x, y;
+    int x, y; // text position inside the widget
     cairo_surface_t* surface;
     cairo_t* cr;
     PangoLayout* layout;
@@ -20,7 +20,7 @@ typedef struct
 TextWidget create_textwidget(   char* program,
                                 char* tooltip );
 // assign widget to the parent window and perform textwidget specific initializations 
-void assign_textwidget( TextWidget* tw, window_data* parent );
+void assign_textwidget( TextWidget* tw, Window* parent );
 
 void measure_size( char* text, char* font, int* width, int* height, PangoLayout* layout );
 void create_cairo_surface( TextWidget* tw );

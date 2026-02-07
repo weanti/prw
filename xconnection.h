@@ -4,11 +4,12 @@
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 
+// X connection details
 typedef struct
 {
     xcb_connection_t* conn;
     xcb_screen_t* screen; 
-} session_data;
+} Session;
 
 typedef struct
 {
@@ -16,20 +17,20 @@ typedef struct
     int y;
     int width;
     int height;
-} geometry;
+} Geometry;
 
 typedef struct
 {
-    session_data session;
+    Session session;
     xcb_drawable_t win;
     xcb_gcontext_t bg_ctx;
     xcb_gcontext_t fg_ctx;
-    int fg, bg;
-} window_data;
+    int fg, bg;// TODO: used directly?
+} Window;
 
-session_data connect_display();
-window_data create_window( session_data session, int x, int y, int w, int h, int bg, int fg, char* wmclass );
-geometry get_geometry( window_data );
-int is_mapped( window_data );
+Session connect_display();
+Window create_window( Session session, int x, int y, int w, int h, int bg, int fg, char* wmclass );
+Geometry get_geometry( Window );
+int is_mapped( Window );
 
 #endif

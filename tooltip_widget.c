@@ -38,7 +38,7 @@ TextWidget create_tooltip_widget(  char* text )
     return tw;
 }
 
-void assign_tooltip_widget( TextWidget* tw, window_data* parent )
+void assign_tooltip_widget( TextWidget* tw, Window* parent )
 {
     assign_widget( &tw->base, parent );
     create_cairo_surface( tw );
