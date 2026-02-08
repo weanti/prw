@@ -32,5 +32,6 @@ Session connect_display();
 Window create_window( Session session, int x, int y, int w, int h, int bg, int fg, char* wmclass );
 Geometry get_geometry( Window );
 int is_mapped( Window );
+xcb_visualtype_t* get_root_vt( xcb_screen_t* screen );
 
 #endif

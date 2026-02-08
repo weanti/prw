@@ -87,3 +87,20 @@ int is_mapped( Window wd )
     return (attributes->map_state != XCB_MAP_STATE_UNMAPPED);
 }
 
+xcb_visualtype_t* get_root_vt( xcb_screen_t* screen )
+{
+    xcb_visualtype_t* vt = NULL;
+    xcb_depth_iterator_t depth_iter = xcb_screen_allowed_depths_iterator( screen );
+    for ( ; !vt && depth_iter.rem; xcb_depth_next(&depth_iter) )
+    {
+        xcb_visualtype_iterator_t visual_iter = xcb_depth_visuals_iterator( depth_iter.data );
+        for ( ; !vt && visual_iter.rem; xcb_visualtype_next( &visual_iter ) )
+        {
+            if ( screen->root_visual == visual_iter.data->visual_id )
+            {
+                vt = visual_iter.data;
+            }
+        }
+    }
+    return vt;
+}
