@@ -26,6 +26,9 @@ TextWidget create_textwidget( char* program )
    
     tw.x = 0;
     tw.y = 0;
+    tw.surface = NULL;
+    tw.cr = NULL;
+    tw.layout = NULL;
     return tw;
 }
 

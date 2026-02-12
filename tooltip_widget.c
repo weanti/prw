@@ -28,6 +28,9 @@ TextWidget create_tooltip_widget(  char* text )
     tw.base = w;
     tw.x = 0;
     tw.y = 0;
+    tw.surface = NULL;
+    tw.cr = NULL;
+    tw.layout = NULL;
 
     char* eol = strpbrk( tw.base.source.source, "\n\r");
     if ( eol )

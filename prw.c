@@ -197,7 +197,6 @@ int main(int argc, char** argv)
                 case XCB_LEAVE_NOTIFY:
                     if ( tooltip_window && is_mapped( *tooltip_window ) )
                     {
-                        xcb_enter_notify_event_t* ee = (xcb_enter_notify_event_t*)event;
                         xcb_unmap_window( tooltip_window->session.conn, tooltip_window->win );
                         update_needed = 1;
                     }
