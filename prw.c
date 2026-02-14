@@ -5,6 +5,7 @@
 #include "xconnection.h"
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -93,6 +94,23 @@ int parse_args(    int argc, char** argv,
     return 1;
 }
 
+void init_tooltip( Session session, char* tooltip, Window** tooltip_window, TextWidget** tooltip_widget )
+{
+    if ( tooltip )
+    {
+        *tooltip_widget = (TextWidget*)malloc( sizeof(TextWidget) );
+        **tooltip_widget = create_tooltip_widget( tooltip );
+        *tooltip_window = (Window*)malloc(sizeof(Window));
+        // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
+        **tooltip_window = create_window( session, 0, 0, 1, 1, 0x777700, 0x777777, NULL );
+        // no decorations
+        uint32_t redirect[1] = { 1};
+        xcb_change_window_attributes( (*tooltip_window)->session.conn, (*tooltip_window)->win, XCB_CW_OVERRIDE_REDIRECT,  redirect );
+        assign_tooltip_widget( *tooltip_widget, *tooltip_window );
+        resize_widget( *tooltip_widget );
+    }
+}
+
 int main(int argc, char** argv)
 {
     int w = DEFAULT_WIDTH;
@@ -123,19 +141,7 @@ int main(int argc, char** argv)
     xcb_map_window( main_window.session.conn, main_window.win );
     Window* tooltip_window = NULL;
     TextWidget* tooltip_widget = NULL;
-    if ( tooltip )
-    {
-        tooltip_widget = (TextWidget*)malloc( sizeof(TextWidget) );
-        *tooltip_widget = create_tooltip_widget( tooltip );
-        tooltip_window = (Window*)malloc(sizeof(Window));
-        // WORKAROUND: first create a 1x1 window, then later measure the content and resize to that content
-        *tooltip_window = create_window( session, 0, 0, 1, 1, 0x777700, 0x777777, NULL );
-        // no decorations
-        uint32_t redirect[1] = { 1};
-        xcb_change_window_attributes( tooltip_window->session.conn, tooltip_window->win, XCB_CW_OVERRIDE_REDIRECT,  redirect );
-        assign_tooltip_widget( tooltip_widget, tooltip_window );
-        resize_widget( tooltip_widget );
-    }
+    init_tooltip( session, tooltip, &tooltip_window, &tooltip_widget );
 
     // show
     xcb_flush(main_window.session.conn);
@@ -146,26 +152,27 @@ int main(int argc, char** argv)
     {
         BarWidget* bw = (BarWidget*)&widget;
         draw = draw_barwidget;
-        *bw = create_barwidget( source, tooltip, maxvalue );
+        *bw = create_barwidget( source, maxvalue );
         assign_barwidget( bw, &main_window );
     }
     else if ( strcmp( type, "-x" ) == 0 )
     {
         TextWidget* tw = (TextWidget*)&widget;
         draw = draw_textwidget;
-        *tw = create_textwidget( source, tooltip );
+        *tw = create_textwidget( source );
         assign_textwidget( tw, &main_window );
     }
     else if ( strcmp( type, "-r" ) == 0 )
     {
         TrendWidget* tw = (TrendWidget*)&widget;
         draw = draw_trendwidget;
-        *tw = create_trendwidget( source, tooltip, maxvalue );
+        *tw = create_trendwidget( source, maxvalue );
         assign_trendwidget( tw,  &main_window );
     }
     xcb_generic_event_t* event;
     time_t last_update = time(NULL);
     int update_needed = 0;
+    xcb_key_symbols_t* keys = xcb_key_symbols_alloc( main_window.session.conn );
     while( 1 ) 
     {
         if ( (event = xcb_poll_for_event(widget.base.window->session.conn) ) )
@@ -195,6 +202,16 @@ int main(int argc, char** argv)
                         update_needed = 1;
                     }
                     break;
+                case XCB_KEY_PRESS:
+                    {
+                        xcb_key_press_event_t* ee = (xcb_key_press_event_t*)event;
+                        xcb_keysym_t key = xcb_key_press_lookup_keysym( keys, ee, 0 ) & 0xFF;
+                        if ( ee->event == main_window.win && ( key == 0x1B ) )
+                        {
+                            goto end;
+                        }
+                        break;
+                    }
                 default:
                     break;
 
@@ -202,7 +219,6 @@ int main(int argc, char** argv)
             free(event);
             event = NULL;
         }
-
         time_t t = time(NULL);
         update_needed = update_needed || ( t - last_update >= repeat );
         if ( update_needed )
@@ -218,6 +234,8 @@ int main(int argc, char** argv)
         }
         nanosleep( &(struct timespec){.tv_nsec = 500000000 }, NULL );
     }
+end:
+    xcb_key_symbols_free( keys );
     destroy_widget( &widget.base );
     xcb_destroy_window( main_window.session.conn, main_window.win );
     xcb_destroy_window( tooltip_window->session.conn, tooltip_window->win );

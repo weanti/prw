@@ -19,11 +19,10 @@ void measure_size( char* text, char* font, int* width, int* height, PangoLayout*
     pango_layout_get_pixel_size(layout, width, height);
 }
 
-TextWidget create_textwidget(   char* program,
-                                char* tooltip )
+TextWidget create_textwidget( char* program )
 {
     TextWidget tw;
-    tw.base = create_widget( program, tooltip );
+    tw.base = create_widget( program );
    
     tw.x = 0;
     tw.y = 0;

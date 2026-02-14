@@ -12,7 +12,6 @@ typedef struct
 } TrendWidget;
 
 TrendWidget create_trendwidget( char* program,
-                                char* tooltip,
                                 double maxvalue );
 // assign widget to the parent window and perform trendwidget specific initializations 
 void assign_trendwidget( TrendWidget* tw, Window* parent );

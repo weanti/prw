@@ -7,10 +7,9 @@
 #include <string.h>
 
 TrendWidget create_trendwidget( char* program,
-                                char* tooltip,
                                 double maxvalue )
 {
-    Widget base = create_widget( program, tooltip ); 
+    Widget base = create_widget( program ); 
     TrendWidget tw = { .base = base, .values = NULL, .maxvalue = maxvalue };
     return tw;
 }

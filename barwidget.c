@@ -4,10 +4,9 @@
 #include <stdlib.h>
 
 BarWidget create_barwidget( char* program,
-                            char* tooltip,
                             double maxvalue )
 {
-    Widget base = create_widget( program, tooltip );
+    Widget base = create_widget( program );
     BarWidget bw = { .base = base, .maxvalue = maxvalue };
     return bw;
 }

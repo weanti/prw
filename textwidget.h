@@ -17,8 +17,7 @@ typedef struct
 } TextWidget;
 
 // create text widget with dynamic output, the source of the text is the output of the given program
-TextWidget create_textwidget(   char* program,
-                                char* tooltip );
+TextWidget create_textwidget( char* program );
 // assign widget to the parent window and perform textwidget specific initializations 
 void assign_textwidget( TextWidget* tw, Window* parent );
 

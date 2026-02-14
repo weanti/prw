@@ -37,7 +37,7 @@ Window create_window( Session session, int x, int y, int w, int h, int bg, int f
     wd.win = xcb_generate_id(wd.session.conn);
     mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     values[0] = bg;
-    values[1] = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW;
+    values[1] = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW | XCB_EVENT_MASK_KEY_PRESS;
 
     xcb_create_window(  wd.session.conn,
                         XCB_COPY_FROM_PARENT,

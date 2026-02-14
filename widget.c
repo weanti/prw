@@ -2,11 +2,10 @@
 
 #include <stdlib.h>
 
-Widget create_widget(   char* program,
-                        char* tooltip )
+Widget create_widget( char* program )
 {
     Source s = create_dynamic_source( program );
-    Widget widget = { .window = NULL, .source = s, .tooltip = tooltip };
+    Widget widget = { .window = NULL, .source = s };
     return widget;
 }
 
@@ -29,6 +28,5 @@ void draw_widget( Widget* widget )
 
 void destroy_widget( Widget* widget )
 {
-    free( widget->tooltip );
     destroy_source( widget->source );
 }
